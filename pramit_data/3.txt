@@ -1,9 +1,0 @@
-TC Startup Battlefield Alum Open Garden Launches Wifi Opener To Make Wi-Fi Password Sharing Easier$$$Open Garden, a former TC Startup Battlefield contestant, launched its latest product today. Wifi Opener, which is now available for Android, allows users to easily share the password to protected Wi-Fi networks with other users within their range.
-
-The app, the company’s CEO and co-founder Micha Benoliel told me earlier this week, seems like a bit of a departure for Open Garden. The company’s eponymous flagship app allows users to share network access over a mesh network, but the company also recently launched WiFi Hotspot, an app that promises to save its users battery life over other tethering solutions by “only running for as long as you choose.” To seed its community, the company has decided to launch some of these spin-off apps that solve a smaller problem that it plans to use as a funnel to advertise its main product.
-
-Wifi Opener itself, the company argues, “is especially useful in places where the network is meant to be publicly accessible but is still protected by a password, such as a coffee shop’s network where the password is posted on the wall or conferences where it is often hard to find out how to access the local network.”
-
-Just like the regular Open Garden app, Wifi Opener will run in the background. The app scans for protected WiFi networks and logs their passwords in order to share them with its user community.
-
-Benoliel also told me that the company recently hired Christophe Daligault as its VP of Sales and Marketing. Previously, Daligault held a very similar role at Fotonauts, the company behind the popular Fotopedia iOS travel and photography apps. The company, which has an office on San Francisco’s Treasure Island, also recently hired three additional engineers to help it push its engineering efforts forward faster.
