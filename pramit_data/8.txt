@@ -1,0 +1,13 @@
+Spruce Crowned The Disrupt SF 2013 Hackathon Grand Prize Winner, Cloudiverse And AdFree Take Second And Third$$$TechCrunch Disrupt SF 2013′s Hackathon wrapped up today, with a demo session that spanned around five hours, after a marathon 24 hour session of actually building hacks. We had a record 264 registered entrants this time around, crushing the previous record of 164 set at Disrupt NY. As a result the 60 second presentation time limit was pretty strictly enforced, but teams still had plenty of chance to wow the judges and the audience.
+
+Here are the teams that took away the top prizes, starting with our grand prize winner.
+
+A dictation service for online reading, which tells people how long it takes to read content via its online platform. The purpose of the service is to improve reading comprehension and make students better readers.
+
+Cloudiverse does much more secure filesharing by breaking files into components and reassembling them after the fact via encryption. It’s the cloud-sharing service of the post-Snowden era.
+
+AdFree allows people to use MapReduce as an alternative to advertising to make revenue from their websites. It uses visitors to power advanced problem-solving processing in order to make revenue.
+
+The winners all get to present their hacks at Disrupt SF 2013 during the main conference, and the grand prize winner gets $5,000 to divide amongst themselves. Everyone wins out, however, with free tickets to Disrupt SF for all presenters and various prized provided by sponsors including Chevrolet, Clover, CrunchBase, Elance, Mashery, NewAer, Person, Pioneer Electronics, RadiumOne, SAP, ShopStyle by POPSUGAR, Twilio, WeatherUnderground, and Yammer.
+
+Our judges this time around were PopVox CEO Marci Harris; Twitter Director of Product April Underwood; Pinterest Engineer and Evangelist Kent Brewster; StartupHouse and Startup Bus founder Elias Bizannes; and NEA partner Jon Sakoda.

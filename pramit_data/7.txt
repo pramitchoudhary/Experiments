@@ -1,0 +1,11 @@
+SARAH Lets You Request Information From 21 Government Agencies At The Same Time$$$The federal government collects gobs and gobs of data on people, and thanks to a little something called the Freedom of Information Act, people can make requests to liberate some of it. It sounds simple enough, but navigating the labyrinthine process and drafting the request is no easy thing.
+
+That’s where SARAH comes in. Created by Enigma co-founder (and Disrupt NY 2013 winner) Hicham Oudghiri, SARAH is a dead-simple tool that lets users submit Freedom of Information Act requests to 21 different government agencies with single click of a button.
+
+Using SARAH is simple enough: all you have to do is fill out a form with some personal information like your name, address an phone number. At the very bottom of the page you’re prompted to detail the specifics of your request, and with one final keystroke you’ve fired off your inquiry to those agencies.
+
+The whole process takes about two minutes tops, but what happens behind the scenes? Oudghiri told me that he built a crawler (using Google’s GO, no less) and deployed it to scour government agency websites for the right contact information. Once the form gets filled out, all of that information is slotted into a form letter and sent to the address provided by each agency.
+
+Now granted, the organizations on that list aren’t necessarily going have anything on you — if you filled out a request asking for whatever personal information the agencies have collected on you, it’s pretty unlikely that you’ll be getting a treasure trove from NASA (and if you do, I want to know about it). Still, I guess you can never really tell who is keeping tabs on who, and Oudghiri didn’t see much need to split things up in such a way (especially considering it was a 24 hour project).
+
+Despite being created by an Enigma co-founder, it’s worth noting that SARAH isn’t really an Enigma product. That said, Oudghiri concedes there’s a sort of thematic similarity here — both are geared toward bringing data out from behind a wall of obscurity and hassles, and that’s a mission I can get behind.
