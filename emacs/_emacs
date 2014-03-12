@@ -1,0 +1,65 @@
+;; ===== Set the highlight current line minor mode ===== 
+
+;; In every buffer, the line which contains the cursor will be fully
+;; highlighted
+(global-hl-line-mode 1)
+
+;; ===== Set standard indent to 2 rather that 4 ====
+(setq standard-indent 2)
+
+;; Save all backup file in this directory.
+(setq backup-directory-alist (quote ((".*" . "~/.emacs_backups/"))))
+
+;; Show line-number in the mode line
+(line-number-mode 1)
+
+;; Show column-number in the mode line
+(column-number-mode 1)
+
+;; ===== Turn on Auto Fill mode automatically in all modes =====
+;; Auto-fill-mode the the automatic wrapping of lines and insertion of
+;; newlines when the cursor goes over the column limit.
+;; This should actually turn on auto-fill-mode by default in all major
+;; modes. The other way to do this is to turn on the fill for specific modes
+;; via hooks.
+(setq auto-fill-mode 1)
+
+;; ===== Function to delete a line =====
+
+;; First define a variable which will store the previous column position
+(defvar previous-column nil "Save the column position")
+
+;; Define the nuke-line function. The line is killed, then the newline
+;; character is deleted. The column which the cursor was positioned at is then
+;; restored. Because the kill-line function is used, the contents deleted can
+;; be later restored by usibackward-delete-char-untabifyng the yank commands.
+(defun nuke-line()
+  "Kill an entire line, including the trailing newline character"
+  (interactive)
+
+  ;; Store the current column position, so it can later be restored for a more
+  ;; natural feel to the deletion
+  (setq previous-column (current-column))
+
+  ;; Now move to the end of the current line
+  (end-of-line)
+
+  ;; Test the length of the line. If it is 0, there is no need for a
+  ;; kill-line. All that happens in this case is that the new-line character
+  ;; is deleted.
+  (if (= (current-column) 0)
+    (delete-char 1)
+
+    ;; This is the 'else' clause. The current line being deleted is not zero
+    ;; in length. First remove the line by moving to its start and then
+    ;; killing, followed by deletion of the newline character, and then
+    ;; finally restoration of the column position.
+    (progn
+      (beginning-of-line)
+      (kill-line)
+      (delete-char 1)
+      (move-to-column previous-column))))
+
+;; Now bind the delete line function to the F8 key
+(global-set-key [f8] 'nuke-line)
+
