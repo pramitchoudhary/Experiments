@@ -1,10 +1,14 @@
-#load data
+##load data
 data(iris)
 table(iris$Species)
 # Using the Caret package to partition the data
 inTrain <- createDataPartition( y=iris$Species, p= 0.7, list=FALSE)
 training <- iris[inTrain,]
 testing <- iris[-inTrain,]
+
+
+## Filter
+inTrain <- (segmentationOriginal[segmentationOriginal$Case == "Train", ] )
 
 #plot
 qplot(Petal.Width, Sepal.Width, colour=Species, data=training)
@@ -15,7 +19,6 @@ fancyRpartPlot(modFit$finalModel)
 
 ## Bagging [ Bootstrap Aggregation ] ( similar bias and reduced variance, useful for non-linear functions )
 ## Useful for non-linear functions
-## e.g. by 
 library(ElemStatLearn)
 data(ozone, package="ElemStatLearn")
 ozone <- ozone[ order(ozone$ozone), ] # sorting based on a column
@@ -61,7 +64,7 @@ qplot(Petal.Width, Petal.Length, colour=predRight, data=testing, main="newData P
 ## Used for imporving the performance of weak classifiers, by averaging them together
 library(ISLR)
 data(Wage); library(ggplot2); library(caret)
-Wage <- subset(Wage, select =-c(logwage)
+Wage <- subset(Wage, select =-c(logwage))
 modFit <- train(wage ~ ., method="gbm", data=training, verbose=FALSE);
 
 
@@ -80,5 +83,10 @@ plda <- predict(modlda, testing) ; pnb <- predict(modnb, testing)
 ### Compare the results               
 table(plda, pnb)     
 equalPred = (plda == pnb)
-qplot(Petal.Width, Sepal.Width, colour=equalPred, data=testing)
+qplot(Petal.Width, Sepal.Width, colour=equalPred, data=testing)               
+
+
+
+### Reference: Material provided by <Jeff Leek, PhD, Roger D. Peng, PhD, Brian Caffo, PhD>
+               
                
