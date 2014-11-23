@@ -38,6 +38,7 @@ points(ozone$ozone, predict(treebag$fit[[1]]$fit, predictor), pch=19, col="red")
 points(ozone$ozone, predict(treebag, predictor), pch=19, col="blue")
 
 ## Random Forest, Caret pkg ( Can be very accurate for wide range of problems )
+## Difficult to interpret but very accurate, often used by the Data Science experts
 data(iris)
 library(ggplot2)
 inTrain <- createDataPartition(y=iris$Species, p=0.7, list=FALSE)
@@ -49,4 +50,9 @@ getTree(modFit$finalModel, k=2)
 irisP <- classCenter(training[, c(3,4)], training$Species, modFit$finalModel$proximity)
 irisP <- as.data.frame(irisP); irisP$Species <- rownames(irisP)
 p <- qplot(Petal.Width, Petal.Length, col=Species, data=training)
-p + geom_point(aes(x=Petal.Width, y=Petal.Length, col=Species), size=5, shape=4, data=irisP)
+##Predicting new values
+pred <- predict(modFit, testing); testing$predRight <- pred==testing$Species
+table(pred, testing$Species)
+## visualize the prediction
+qplot(Petal.Width, Petal.Length, colour=predRight, data=testing, main="newData Predictions")
+
