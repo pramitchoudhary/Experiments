@@ -50,9 +50,35 @@ getTree(modFit$finalModel, k=2)
 irisP <- classCenter(training[, c(3,4)], training$Species, modFit$finalModel$proximity)
 irisP <- as.data.frame(irisP); irisP$Species <- rownames(irisP)
 p <- qplot(Petal.Width, Petal.Length, col=Species, data=training)
-##Predicting new values
+## Predicting new values
 pred <- predict(modFit, testing); testing$predRight <- pred==testing$Species
 table(pred, testing$Species)
 ## visualize the prediction
 qplot(Petal.Width, Petal.Length, colour=predRight, data=testing, main="newData Predictions")
 
+
+## Boosting
+## Used for imporving the performance of weak classifiers, by averaging them together
+library(ISLR)
+data(Wage); library(ggplot2); library(caret)
+Wage <- subset(Wage, select =-c(logwage)
+modFit <- train(wage ~ ., method="gbm", data=training, verbose=FALSE);
+
+
+## Model Based predicition
+## 1. Naive Bayes ( Assumption, all the features are independent and not related )
+data(iris)
+inTrain <- createDataPartition(y=iris$Species, p=0.7, list=FALSE)
+training <- iris[inTrain, ]
+testing <- iris[-inTrain, ]
+## Linear Discrimant Analysis               
+modlda <- train (Species ~ ., data=training, method="lda")               
+## Naive Bayes
+modlda <- train (Species ~ ., data=training, method="nb")               
+### Predict
+plda <- predict(modlda, testing) ; pnb <- predict(modnb, testing)
+### Compare the results               
+table(plda, pnb)     
+equalPred = (plda == pnb)
+qplot(Petal.Width, Sepal.Width, colour=equalPred, data=testing)
+               
