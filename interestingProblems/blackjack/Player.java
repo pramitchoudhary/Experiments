@@ -146,18 +146,32 @@ public class Player
 
         /**
          * Print the player's card
-         * @param displayFirstCard flag to keep track if the first card is hidden or not, useful incase the player is the Dealer
+         * @param hide flag to keep track if the first card is hidden or not, useful incase the player is the Dealer
          */
-        public void printHand( boolean displayFirstCard ){
+        public void printHand( boolean hide ){
                 System.out.println("Player: " + this.name );
-
-                if (displayFirstCard )
-                        System.out.println(hand.get(0).getCardStr() + " of " + hand.get(0).getSuitType().toString());
+                int startIndex =0;
+                if ( name.equals("Dealer"))
+                        startIndex = 1;
                 else
-                        {
-                                System.out.println("First card is hidden");
+                        startIndex = 2;
+                
+                if ( hide == false){
+                        int counter = startIndex;
+                        while( counter > 0 ){
+                                System.out.println(hand.get(counter -1 ).getCardStr() + " of " + hand.get(counter -1).getSuitType().toString());
+                                counter--;
                         }
-                for ( int index = 1; index < hand.size(); index++ )
+                }
+                else{
+                                int tempCounter = startIndex;
+                                while(tempCounter > 0)
+                                        {
+                                                System.out.println("Card is hidden");
+                                                tempCounter--;
+                                        }
+                        }
+                for ( int index = startIndex; index < hand.size(); index++ )
                         {
                                 System.out.println(hand.get(index).getCardStr() + " of " + hand.get(index).getSuitType().toString());
                        }
