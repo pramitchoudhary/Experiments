@@ -46,6 +46,10 @@ public class GameManager{
                  System.out.println("Enter the number of decks to use");
                  int numOfDeck = Integer.parseInt( gm.scObj.next() );
                  System.out.println();
+
+                 System.out.println("Do you want your cards to be hidden till you hit(true/false)");
+                 boolean hide = Boolean.valueOf( gm.scObj.next() );
+                 System.out.println();
                   
                 //1. Set the deck of cards
                 deckInstance.setDeckOfCards(numOfDeck);
@@ -66,8 +70,8 @@ public class GameManager{
                 // Print initial Hands
                 System.out.println("Cards Dealt");
                 
-                me.printHand(true);
-                dealer.printHand(false);
+                me.printHand(hide);
+                dealer.printHand(true);
 
                 while (!playerDone || !dealerDone )
                         {
@@ -84,7 +88,7 @@ public class GameManager{
                                                 
                                                 if( inputChoice.compareToIgnoreCase("Hit") == 0 ) {
                                                         playerDone = me.addCard(deckInstance.dealNextCard());
-                                                        me.printHand(true);
+                                                        me.printHand(hide);
                                                 }
                                                 else {
                                                         playerDone = true;
@@ -96,7 +100,7 @@ public class GameManager{
                                                 dealerDone = dealer.addCard(deckInstance.dealNextCard());
 
                                                 // Dealer shows the card after each hand
-                                                dealer.printHand(false);
+                                                dealer.printHand(true);
                                         }
                                         else{
                                                 System.out.println("The Dealer stays ");
@@ -109,8 +113,8 @@ public class GameManager{
                 gm.scObj.close();
 
                 // Display the final hands
-                me.printHand(true);
-                dealer.printHand(true);
+                me.printHand(false);
+                dealer.printHand(false);
 
                 // Compute Result
                 int playerSum = me.computeHandSum();
