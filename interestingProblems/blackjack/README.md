@@ -9,7 +9,19 @@ This is a basic implementation of the famous Black-Jack. Currently,  it's only C
     * The decision to "Hit"/"Stay" is implicitly suggested based on the Probability value
 ### Probability of wining is calculated at each hand for the Player:
     * Stats displayed to the user:
-      1. Under and Over 21: This displays the probability of staying under or going over after each hand
-      2. Probability of getting 21 or max value close to 21 at the end of each try
-      3. It also displays the default chance of getting perfect 21 with the combination of (faceCard + Ace) at the start of the game
+    1. Under and Over 21: This displays the probability of staying under or going over after each hand
+    2. Probability of getting 21 or max value close to 21 at the end of each try
+    3. It also displays the default chance of getting perfect 21 with the combination of (faceCard + Ace) at the start of the game
+
+### Usage:
+    1. Fork or download the repository in a local directory
+    2. Download the guava-18.0.jar from http://mvnrepository.com/artifact/com.google.guava/guava/18.0
+    3. If you wish to build the source from scratch, execute the following command at CLI
+       
+       * javac -g Suit.java Card.java Deck.java
+       * javac -g -cp guava-18.0.jar:. Player.java GameManager.java
+       
+   4. Execute: java -cp guava-18.0.jar:. GameManager
+
+
 
