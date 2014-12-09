@@ -14,14 +14,17 @@ This is a basic implementation of the famous Black-Jack. Currently,  it's only C
     3. It also displays the default chance of getting perfect 21 with the combination of (faceCard + Ace) at the start of the game
 
 ### Usage:
+##### Build:
     1. Fork or download the repository in a local directory
     2. Download the guava-18.0.jar from http://mvnrepository.com/artifact/com.google.guava/guava/18.0
     3. If you wish to build the source from scratch, execute the following command at CLI
        
        * javac -g Suit.java Card.java Deck.java
        * javac -g -cp guava-18.0.jar:. Player.java GameManager.java
+       * Execute: java -cp guava-18.0.jar:. GameManager
        
-   4. Execute: java -cp guava-18.0.jar:. GameManager
+#####Without Building and Downloading  guava-18.0.jar file:
+    Download 'blackjack.jar' and execute 'java -jar  blackjack.jar
 
 
 
