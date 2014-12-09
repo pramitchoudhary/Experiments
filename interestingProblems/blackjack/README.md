@@ -24,7 +24,7 @@ This is a basic implementation of the famous Black-Jack. Currently,  it's only C
        * Execute: java -cp guava-18.0.jar:. GameManager
        
 #####Without Building and Downloading  guava-18.0.jar file:
-Download 'blackjack.jar' and execute 'java -jar  blackjack.jar
+    Download 'blackjack.jar' and execute 'java -jar  blackjack.jar
 
 ### Future Implementation
 1. Add support for Web
