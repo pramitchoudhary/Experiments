@@ -102,10 +102,7 @@ public class Player
                                }
                                 sumTo21--;
                         }
-                System.out.println(valueOfCardsRemaining);
-                System.out.println(cardsOnDeck);
-                System.out.println(currentHandDict.toString());
-                //System.out.println("Probability of getting BlackJack at the start of the game: " + defaultProb);
+                System.out.println("Probability of getting BlackJack at the start of the game: " + defaultProb);
                 return oddsValue;
         }
         
