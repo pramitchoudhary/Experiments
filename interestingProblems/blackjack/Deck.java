@@ -21,11 +21,7 @@ public class Deck
                         {
                                 for ( int d =1; d<14; d++){
                                         Card tempObj;
-                                        // if( s > 3 ){
                                         tempObj = new Card(Suit.values()[s %4],d);
-                                                //   }
-                                                // else
-                                                //         tempObj = new Card(Suit.values()[s],d);
                                         cards.add(tempObj);
                                 }
                         }

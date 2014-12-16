@@ -88,22 +88,24 @@ public class Player
                 // Odds calculated after each attempt
                 int currentSum = computeHandSum();
                 int sumTo21 = 21 - currentSum;
+                int sumTo17 = 17 - currentSum; // 17 bcauz if its a draw then the Player wins
                 int[] defaultSet = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
                 float oddsValue =0;
                 cardsOnDeck = dInstance.getDeckCount();
-                if( sumTo21 >= 10 )
+                int valueOfCardsRemaining =0;
+                while( sumTo21 > 0 && (sumTo21 + currentSum) >=17 )
                         {
-                                tenValuedCardRemaining = currentHandDict.get(10);
-                                numAcesRemaining = currentHandDict.get(1);
-                                oddsValue = (float) (numAcesRemaining + tenValuedCardRemaining)/cardsOnDeck;
+                                if( sumTo21 <=11){
+                                        if ( sumTo21 == 11)
+                                                valueOfCardsRemaining += currentHandDict.get(1); // Ace count saved under 1
+                                        else
+                                                valueOfCardsRemaining += currentHandDict.get(sumTo21);
+                                        oddsValue = (float) (valueOfCardsRemaining)/cardsOnDeck;
+                               }
+                                sumTo21--;
                         }
-                else if (  sumTo21 >0 && sumTo21 < 10)
-                            {
-                                   float faceCardRemaining = currentHandDict.get(sumTo21);
-                                    oddsValue = (float) faceCardRemaining/cardsOnDeck;
-                            }
-
-                System.out.println("Probability of getting BlackJack at the start of the game: " + defaultProb);
+         
+                //System.out.println("Probability of getting BlackJack at the start of the game: " + defaultProb);
                 return oddsValue;
         }
         
