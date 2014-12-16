@@ -23,14 +23,14 @@ This is a basic implementation of the famous Black-Jack. Currently,  it's only C
        * javac -g -cp guava-18.0.jar:. Player.java GameManager.java
        * Execute: java -cp guava-18.0.jar:. GameManager
        
-#####Without Building and Downloading  guava-18.0.jar file:
-    Download 'blackjack.jar' and execute 'java -jar  blackjack.jar
+#####Without Building:
+    Download 'blackjack.jar and guava-18.0.jar' and execute 'java -jar  blackjack.jar
 
 ### Future Implementation
 1. Add support for Web
 2. Compute probability based on pre-computed matrix as suggested at the following link:
-http://en.wikipedia.org/wiki/Blackjack
-3. Add suuport for splitting, Double or others
+http://en.wikipedia.org/wiki/Blackjack#Basic_strategy
+3. Add support for splitting, Double and others
 
 
 
