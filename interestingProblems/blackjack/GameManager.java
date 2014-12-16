@@ -61,11 +61,12 @@ public class GameManager{
                 deckInstance.shuffle();
 
                 // The game starts by initializing 2 hands
-                me.addCard(deckInstance.dealNextCard());
-                dealer.addCard(deckInstance.dealNextCard());
+                me.addCard(deckInstance.dealNextCard(false));
+                me.addCard(deckInstance.dealNextCard(false));
 
-                me.addCard(deckInstance.dealNextCard());
-                dealer.addCard(deckInstance.dealNextCard());
+    
+                dealer.addCard(deckInstance.dealNextCard(true));
+                dealer.addCard(deckInstance.dealNextCard(false));
 
                 // Print initial Hands
                 System.out.println("Cards Dealt");
@@ -87,7 +88,7 @@ public class GameManager{
                                                 System.out.println();
                                                 
                                                 if( inputChoice.compareToIgnoreCase("Hit") == 0 ) {
-                                                        playerDone = me.addCard(deckInstance.dealNextCard());
+                                                        playerDone = me.addCard(deckInstance.dealNextCard(false));
                                                         me.printHand(hide);
                                                 }
                                                 else {
@@ -97,7 +98,7 @@ public class GameManager{
                                 if ( !dealerDone & playerDone){ // dealer's turn
                                         if (dealer.computeHandSum() <17){
                                                 System.out.println("The dealer hits");
-                                                dealerDone = dealer.addCard(deckInstance.dealNextCard());
+                                                dealerDone = dealer.addCard(deckInstance.dealNextCard(false));
 
                                                 // Dealer shows the card after each hand
                                                 dealer.printHand(true);

@@ -70,7 +70,7 @@ public class Deck
         /**
          * @return the top card as the deal card
          */
-        public Card dealNextCard(){
+        public Card dealNextCard(boolean hidden){
 
                 Card top = cards.get(0);
                 cards.remove(0);
@@ -84,8 +84,19 @@ public class Deck
                         {
                                 value = top.getNumber();
                         }
-                int currentCount = handDict.get( value );
-                handDict.put(top.getNumber(), currentCount -1 );
+                int currentCount = 0;
+                if (hidden == true)
+                        {
+                                currentCount = handDict.get( 10 );
+                                // Update the deck
+                                handDict.put(10, currentCount -1 );
+                        }
+                else
+                        {
+                                currentCount = handDict.get( value );
+                                // Update the deck
+                                handDict.put(top.getNumber(), currentCount -1 );
+                        }
                 
                 return top;
         }

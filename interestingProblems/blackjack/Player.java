@@ -20,7 +20,6 @@ public class Player
 
         private Deck dInstance;
 
-        //private ArrayList<Pair<int,int>> ;
         /**
          * @param  pName Name of the player
          */
@@ -29,7 +28,6 @@ public class Player
                 this.name = pName;
                 hand = new ArrayList<Card>();
                 dInstance = dObj;
-                //combinations = ArrayList<Pair<int,int>>();
         }
 
         /**
@@ -104,7 +102,9 @@ public class Player
                                }
                                 sumTo21--;
                         }
-         
+                System.out.println(valueOfCardsRemaining);
+                System.out.println(cardsOnDeck);
+                System.out.println(currentHandDict.toString());
                 //System.out.println("Probability of getting BlackJack at the start of the game: " + defaultProb);
                 return oddsValue;
         }
