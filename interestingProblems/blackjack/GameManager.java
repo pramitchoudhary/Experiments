@@ -83,7 +83,6 @@ public class GameManager{
                                                 me.countCards();
                                                 System.out.println("Odds of reaching 21 or close to 21 in the next hand: " +  me.computeProbToGetBlackJack(numOfDeck));
                                                 dealer.computeDealersPossibilities(dealer.computeHandSum(true), 1, numOfDeck);
-                                                dealer.displayProbabilityArray();
                                                 System.out.println("Dealer's odd of winning: " + dealer.probabilityBust);
                                                 
                                                 System.out.println("Enter Hit or Stay: ");

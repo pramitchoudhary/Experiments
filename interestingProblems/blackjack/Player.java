@@ -111,7 +111,6 @@ public class Player
         
         public double computeDealersPossibilities(int sum, double value, int numOfDeck) {
                 HashMap<Integer, Integer> cards = dInstance.getCurrentDeckMap();
-                //System.out.println(sum);
                 if (sum < 17) {
                         for (int card = 1; card <= 10; ++card) {
                                 if (cards.get(card) > 0) {
