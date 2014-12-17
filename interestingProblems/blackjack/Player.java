@@ -109,7 +109,7 @@ public class Player
                 return oddsValue;
         }
         
-        public double computeDealersPossibilities(int sum, double value, int numOfDeck) {
+        public void computeDealersPossibilities(int sum, double value, int numOfDeck) {
                 HashMap<Integer, Integer> cards = dInstance.getCurrentDeckMap();
                 if (sum < 17) {
                         for (int card = 1; card <= 10; ++card) {
