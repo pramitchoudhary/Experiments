@@ -101,6 +101,12 @@ public class Deck
                 return top;
         }
 
+         public void setRemovedCard(Card cardRemoved){
+                 cards.add(cardRemoved);
+                 int val = cardRemoved.getNumber();
+                 handDict.put(val, handDict.get(val) +1 );
+         }
+        
         /**
          * @param  rangeToDisplay number of cards from the top of the deck to display
          */

@@ -76,12 +76,15 @@ public class GameManager{
 
                 while (!playerDone || !dealerDone )
                         {
-                                if( !playerDone && me.computeHandSum()!=21)
+                                if( !playerDone && me.computeHandSum(false)<=21)
                                         {
 
                                                 System.out.println("Stats of the Game");
                                                 me.countCards();
-                                                System.out.println("Odds of winning: " +  me.computeProbToGetBlackJack(numOfDeck));
+                                                System.out.println("Odds of reaching 21 or close to 21 in the next hand: " +  me.computeProbToGetBlackJack(numOfDeck));
+                                                dealer.computeDealersPossibilities(dealer.computeHandSum(true), 1, numOfDeck);
+                                                dealer.displayProbabilityArray();
+                                                System.out.println("Dealer's odd of winning: " + dealer.probabilityBust);
                                                 
                                                 System.out.println("Enter Hit or Stay: ");
                                                 inputChoice = gm.scObj.next();
@@ -96,7 +99,7 @@ public class GameManager{
                                                 }
                                         }
                                 if ( !dealerDone & playerDone){ // dealer's turn
-                                        if (dealer.computeHandSum() <17){
+                                        if (dealer.computeHandSum(false) <17){
                                                 System.out.println("The dealer hits");
                                                 dealerDone = dealer.addCard(deckInstance.dealNextCard(false));
 
@@ -118,10 +121,10 @@ public class GameManager{
                 dealer.printHand(false);
 
                 // Compute Result
-                int playerSum = me.computeHandSum();
-                int dealerSum = dealer.computeHandSum();
+                int playerSum = me.computeHandSum(false);
+                int dealerSum = dealer.computeHandSum(false);
 
-                if( (playerSum  > dealerSum && playerSum <=21) || dealerSum > 21 || dealerSum == playerSum) // if it's a draw then the player wins
+                if( (playerSum  > dealerSum && playerSum <=21) || (dealerSum > 21 &&  playerSum <=21) || dealerSum == playerSum) // if it's a draw then the player wins
                         {
                                 System.out.println("You Win");
                         }

@@ -4,7 +4,7 @@
 
 import java.util.*;
 import java.math.*;
-import com.google.common.math.*;
+//import com.google.common.math.*;
 
 public class Player
 {
@@ -20,6 +20,9 @@ public class Player
 
         private Deck dInstance;
 
+        public double[] probabilityArray;
+        public double probabilityBust;
+
         /**
          * @param  pName Name of the player
          */
@@ -28,6 +31,7 @@ public class Player
                 this.name = pName;
                 hand = new ArrayList<Card>();
                 dInstance = dObj;
+                probabilityArray = new double[5];
         }
 
         /**
@@ -47,7 +51,7 @@ public class Player
                 float underOrEqual = 0;
                 float over = 0;
 
-                int currentSum = computeHandSum();
+                int currentSum = computeHandSum(false);
                 int diff = 21 - currentSum;
                 int diff2=0;
                 if ( diff > 10 )
@@ -76,20 +80,20 @@ public class Player
 
                 HashMap<Integer, Integer> currentHandDict = dInstance.getCurrentDeckMap();
 
-                // Default Probability of getting a black-jack at the start of the game
-                int cardsOnDeck = numOfDeck*52;
-                int numAcesRemaining = numOfDeck*4;
-                int tenValuedCardRemaining = numOfDeck*16; // < 10s:4; K:4; Q:4; J:4 >
-                float combinationCount = BigIntegerMath.binomial(cardsOnDeck, 2).floatValue();
-                float defaultProb  = (float) (numAcesRemaining * tenValuedCardRemaining) /combinationCount;
+                // // Default Probability of getting a black-jack at the start of the game
+                // int cardsOnDeck = numOfDeck*52;
+                // int numAcesRemaining = numOfDeck*4;
+                // int tenValuedCardRemaining = numOfDeck*16; // < 10s:4; K:4; Q:4; J:4 >
+                // float combinationCount = BigIntegerMath.binomial(cardsOnDeck, 2).floatValue();
+                // float defaultProb  = (float) (numAcesRemaining * tenValuedCardRemaining) /combinationCount;
 
                 // Odds calculated after each attempt
-                int currentSum = computeHandSum();
+                int currentSum = computeHandSum(false);
                 int sumTo21 = 21 - currentSum;
                 int sumTo17 = 17 - currentSum; // 17 bcauz if its a draw then the Player wins
                 int[] defaultSet = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
                 float oddsValue =0;
-                cardsOnDeck = dInstance.getDeckCount();
+                int cardsOnDeck = dInstance.getDeckCount();
                 int valueOfCardsRemaining =0;
                 while( sumTo21 > 0 && (sumTo21 + currentSum) >=17 )
                         {
@@ -102,30 +106,58 @@ public class Player
                                }
                                 sumTo21--;
                         }
-                System.out.println("Probability of getting BlackJack at the start of the game: " + defaultProb);
                 return oddsValue;
+        }
+        
+        public double computeDealersPossibilities(int sum, double value, int numOfDeck) {
+                HashMap<Integer, Integer> cards = dInstance.getCurrentDeckMap();
+                //System.out.println(sum);
+                if (sum < 17) {
+                        for (int card = 1; card <= 10; ++card) {
+                                if (cards.get(card) > 0) {
+                                        double pCard    = (double)cards.get(card) / dInstance.getDeckCount();
+                                        cards.put(card, cards.get(card) -1);
+                                        computeDealersPossibilities(sum+card, value * pCard, numOfDeck);
+                                        cards.put(card, cards.get(card) +1);
+                                }
+                        }
+                } else if (sum <= 21) {
+                        probabilityArray[sum-17] += value;
+                } else {
+                        probabilityBust+= value;
+                }
+                return probabilityBust;
+        }
+
+        public void displayProbabilityArray()
+        {
+                for(int i =0; i <5; i++)
+                        System.out.println(i +" : " + probabilityArray[i]);
         }
         
         /**
          * Reset player's hand to zero
          * @return int Sum of the cards at the end of a hand
          */
-        public int computeHandSum(){
+        public int computeHandSum(boolean probCalculation){
                 int sum = 0;
                 int nAces = 0;
-
-                for( Card c: hand ){
-                        if( c.isAce() ) nAces++;
-                        int cardValue = c.getNumber();
+                int index = 0;
+                if ( probCalculation)
+                        {
+                                index = 1;
+                        }
+                for( int i= index; i<hand.size(); i++ ){
+                        if( hand.get(i).isAce() ) nAces++;
+                        int cardValue = hand.get(i).getNumber();
                         sum+= cardValue;
                 }
 
                 while (sum > 21 && nAces >0 )
                         {
-                                sum = sum +10; // +10 bcauz -1, +10 for each ace
+                                sum = sum - 10; 
                                 nAces--;
                        }
-                
                 return sum;
         }
         
@@ -140,7 +172,7 @@ public class Player
                 else
                         this.hand.add(newCard);
 
-                return ( computeHandSum()  >= 21 );
+                return ( computeHandSum(false)  >= 21 );
         }
 
         /**
