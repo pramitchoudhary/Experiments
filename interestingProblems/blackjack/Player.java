@@ -125,7 +125,6 @@ public class Player
                 } else {
                         probabilityBust+= value;
                 }
-                return probabilityBust;
         }
 
         public void displayProbabilityArray()
