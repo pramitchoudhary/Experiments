@@ -97,6 +97,10 @@ qplot(pred, user_name, colour=pred, data=testing, main="Prediction on TestData",
 table(pred)
 ```
 
+Conclusion:
+The result conveys a small story that 'eurico' and 'jeremy' started lifting weights in a wrong manner and later learned to do it the right way
+It depicts the progress that users made.
+
 Reference:
 Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
 Read more: http://groupware.les.inf.puc-rio.br/har#ixzz3MZB5Q5WD
