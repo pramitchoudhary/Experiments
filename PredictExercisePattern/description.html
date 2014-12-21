@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Preciting the Exercise Pattern(Weighting Lifting)</title>
+</head>
+<body>
+<h1>Qualitative Activity Recognition while lifting Weights</h1>
+<hr>
+<h4>Summarizing the Dataset </h4>
+<p>TrainingSet:<br> </p>
+
+<h4> Steps in modeling a predictor to analyze the class </h4>
+<p>Assumption: Current model is for a single node system <br>
+<ol>
+  <li>
+  Read the train and test set using the 'read.csv' function
+  </li>
+  <li>
+  Preprocess the data. This involves a bunch of steps which includes
+  <ul><li>Removing the columns with majority rows marked as NA or empty.
+    This is important as these columns will not be helping with the final classification in any way and it helps in<br>
+    reducing the number of features needed for prediction</li></ul>
+  </li>
+  <li>
+  The most important step with any data set is to figure out how are the predictor variables(feature set of the dataset, say 'F1','F2','F3' ...)<br>
+  related to the predictor output variable('O')  This can be done in 2 ways:<br>
+  <ul><li>Feature Ranking</li><li>Subset Selection</li></ul>
+  <p>
+  Feature Ranking Techniques: ( FSelector Pkg)<br>
+  <ul><li>Chi-squared Filter  e.g. chi.squared(Class ~., data)</li>
+  <li>Correlation Filter  e.g. linear.correlation(Class ~., data) [Pearson's correlation]</li>
+  <li>rank.correlation(formula, data) [Spearman's correlation]</li>
+  <li>Entropy based Filter  e.g. information.gain(formula, data)  gain.ratio(formula, data)
+  <li>Random Forest Filter  e.g. random.forest.importance(formula, data, importance.type = 1)</li></ul>
+  <li>
+  A more concise way is using PCA/SVM which helps in identifying weighted combination of predictors<br>
+  e.g.<code>modelFit <- train(newdataTraining$classe ~ ., method=&quot;rf&quot;, preProcess=&quot;pca&quot;, trControl = trainControl(method = &quot;cv&quot;),
+  <br>data=newdataTraining)</code> [caret pkg]
+  <li>
+  Observations:
+  <p>Random Forest applied on 19622 samples, with 54 predictors for multivariate classifiaction( A, B, C, D, E)<br>
+  Preprocessing steps include: principal component extraction, scaled, centered <br>
+  Resampling done with 10-fold cross validation  </p>
+  <p>Resampling results across tuning parameters:<br>
+  <table>
+  <TR><th>mtry</th><th>Accuracy</th><th>Kappa</th><th>Accuracy SD</th><th>Kappa SD</th>
+  <TR><td>2</td><td>0.9835386</td><td>0.9791762</td><td>0.002751923</td><td>0.003483329</td></TR>
+  <TR><td>28</td><td>0.9721742</td><td>0.9647996</td><td>0.004217609</td><td>0.005342003</td></TR>
+  <TR><td>54</td><td>0.9725311</td><td>0.9652533</td><td>0.003161762</td><td>0.004003768</td></TR>
+  </table></p>
+</li>
+  <li>
+  Once the model is trained, the same can be used to predict on the testset
+  <ul> <li>Observations on Test data<br>
+    <table>
+      <TR><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></TR>
+      <TR><td>8</td><td>7</td><td>1</td><td>1</td><td>3</td></TR>
+    </table>
+  </li>     
+</ul>
+<img src="UserVsClass.jpg" >
+<p>The result conveys a small story that 'eurico' and 'jeremy' started lifting weights in a wrong manner and <br>
+   later learned to do it the right way</p>
+</li>
+</li>
+</ol>
+
+
+<!-- hhmts start -->Last modified: Mon Nov 24 10:02:34 PST 2014 <!-- hhmts end -->
+</body> </html>
