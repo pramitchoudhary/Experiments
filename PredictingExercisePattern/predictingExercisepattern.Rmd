@@ -59,8 +59,8 @@ The most important step with any data set is to figure out how are the predictor
 
 Feature selection using PCA and applying random forest to train the model, with cross validation
 ```{r}
-#library('caret')
-#modelFit <- train(newdataTraining$classe ~ ., method="rf", preProcess="pca", trControl = trainControl(method = "cv"), data=newdataTraining)
+library('caret')
+modelFit <- train(newdataTraining$classe ~ ., method="rf", preProcess="pca", trControl = trainControl(method = "cv"), data=newdataTraining)
 ```
 
 Observations:
@@ -96,3 +96,7 @@ qplot(pred, user_name, colour=pred, data=testing, main="Prediction on TestData",
 ```{r cachedChunk_2, cache=TRUE}
 table(pred)
 ```
+
+Reference:
+Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
+Read more: http://groupware.les.inf.puc-rio.br/har#ixzz3MZB5Q5WD
