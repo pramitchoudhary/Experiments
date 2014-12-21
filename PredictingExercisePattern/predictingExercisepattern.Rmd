@@ -1,0 +1,98 @@
+"Predicting the Exercise Pattern(Weighting Lifting)"
+-----------------------------------------------------
+Qualitative Activity Recognition while lifting Weights
+
+Summarizing the Dataset 
+
+1. TrainingSet:
+  19623 rows
+  160 features
+  Distribution of data in different classes
+  A:5580 B:3797 C:3422 D:3216 E:3607
+  + Class A: According to the specification
+  + Class B: Throwing the elbows to the front 
+  + Class C: Lifting the dumbbell only halfway
+  + Class D: Lowering the dumbbell only halfway 
+  + Class E: Throwing the hips to the front.
+
+2. TestSet:
+
+Steps in modeling a predictor to analyze the class
+*Assumption:* Current model is for a single node system
+
+1. Read the train and test set using the 'read.csv' function
+2. Preprocess the data. This involves a bunch of steps which includes
+  - Removing the columns with majority rows marked as NA or empty.
+  This is important as these columns will not help in the final classification and it
+  also helps in reducing the number of features needed for prediction.
+
+```{r}
+filenameTest= "/Users/maverick/Documents/PracticalML/projectDataset/pml-testing.csv"
+filenameTrain = "/Users/maverick/Documents/PracticalML/projectDataset/pml-training.csv"
+training <- read.csv(filenameTrain, header = TRUE, sep = ",", quote = "\"",
+         dec = ".", fill = TRUE, comment.char = "")
+x <- subset(training, select =-classe)
+y <- training$classe
+## Remove the columns with excessive NAs
+newdataTraining<- training[,colSums(is.na(training)) < 19216]
+## To handle empty cells, one needs to convert the same to NA and then use the above technique again
+newdataTraining[newdataTraining==""] <- NA
+newdataTraining<- newdataTraining[,colSums(is.na(newdataTraining)) < 19216]
+```
+Distribution of the classes in the Training Set
+```{r, echo=FALSE}
+plot(newdataTraining$classe)
+```
+
+The most important step with any data set is to figure out how are the predictor variables(feature set of the dataset, say 'F1','F2','F3' ...) related to the predictor output variable('O')  This can be done in 2 ways:
+ - Feature Ranking
+ - Subset Selection
+ 
+ - Feature Ranking Techniques: ( FSelector Pkg)
+  <ul><li>Chi-squared Filter  e.g. chi.squared(Class ~., data)</li>
+  <li>Correlation Filter  e.g. linear.correlation(Class ~., data) [Pearson's correlation]</li>
+  <li>rank.correlation(formula, data) [Spearman's correlation]</li>
+  <li>Entropy based Filter e.g. information.gain(formula, data)  gain.ratio(formula, data)
+  <li>Random Forest Filter  e.g. random.forest.importance(formula, data, importance.type = 1)</li></ul>
+  <li>
+  A more concise way is using PCA/SVM which helps in identifying weighted combination of predictors<br>
+
+Feature selection using PCA and applying random forest to train the model, with cross validation
+```{r}
+#library('caret')
+#modelFit <- train(newdataTraining$classe ~ ., method="rf", preProcess="pca", trControl = trainControl(method = "cv"), data=newdataTraining)
+```
+
+Observations:
+
+  - Random Forest applied on 19622 samples, with 59 predictors for multivariate
+    classifiaction on 5 classes s( A, B, C, D, E)
+    
+  - Preprocessing steps include: principal component extraction, scaled, centered
+  
+  - Resampling done with 10-fold cross validation
+  
+  - Resampling results across tuning parameters:
+  <table>
+  <TR><th>mtry</th><th>Accuracy</th><th>Kappa</th><th>Accuracy SD</th><th>Kappa SD</th>
+  <TR><td>2</td><td>0.9835386</td><td>0.9791762</td><td>0.002751923</td><td>0.003483329 
+  </td></TR>
+  <TR><td>28</td><td>0.9721742</td><td>0.9647996</td><td>0.004217609</td><td>0.00534200
+  </td></TR>
+  <TR><td>54</td><td>0.9725311</td><td>0.9652533</td><td>0.003161762</td><td>0.004003768 
+  </td></TR>
+  </table></p>
+  
+The fitted model can now be used to predict on the test data set
+```{r cachedChunk_1, cache=TRUE}
+testing <- read.csv('/Users/maverick/Documents/PracticalML/projectDataset/pml-testing.csv', header = TRUE, sep = ",", quote = "\"",dec = ".", fill = TRUE, comment.char = "")
+pred <- predict(modelFit, testing)
+```
+Ploting the results
+```{r, echo=FALSE}
+library('caret')
+qplot(pred, user_name, colour=pred, data=testing, main="Prediction on TestData", xlab="Methods of Wt. Lifting", ylab="Users")
+```
+```{r cachedChunk_2, cache=TRUE}
+table(pred)
+```
