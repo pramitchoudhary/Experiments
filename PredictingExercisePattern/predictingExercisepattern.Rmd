@@ -1,4 +1,4 @@
-"Predicting the Exercise Pattern(Weighting Lifting)"
+"Predicting the Exercise Pattern(Weight Lifting)"
 -----------------------------------------------------
 Qualitative Activity Recognition while lifting Weights
 
