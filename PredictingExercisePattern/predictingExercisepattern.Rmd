@@ -14,8 +14,8 @@ Summarizing the Dataset
   + Class C: Lifting the dumbbell only halfway
   + Class D: Lowering the dumbbell only halfway 
   + Class E: Throwing the hips to the front.
-
 2. TestSet:
+20 rows
 
 Steps in modeling a predictor to analyze the class
 *Assumption:* Current model is for a single node system
