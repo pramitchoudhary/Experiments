@@ -1,0 +1,54 @@
+---
+title: "Statistical Inference Project- Part2"
+author: "Pramit Choudhary"
+output: pdf_document
+---
+
+Study the Tooth-Growth Data
+
+- Summary of the data set
+```{r}
+str(ToothGrowth)
+require(graphics)
+coplot(len ~ dose | supp, data = ToothGrowth, panel = panel.smooth,
+       xlab = "ToothGrowth data: length vs dose, given type of supplement")
+
+# Another way to visualize the same
+library(ggplot2)
+g <- ggplot(ToothGrowth,aes(x=dose,y=len))
+g <- g + geom_point(aes(group=supp,colour=supp,size=1,alpha=0.2))
+g
+```
+
+- Hypotheis Testing
+1. Reformat the data
+```{r}
+library(reshape2)
+toothData <- data.frame(ToothGrowth,piD=rep(c(1:10),6))
+toothData <- dcast(toothData,dose+piD~supp,value.var="len")
+names(toothData)[-(1: 2)] <- paste("Type_", names(toothData)[-(1: 2)], sep = "")
+library(dplyr)
+toothData <- mutate(toothData,difference=Type_OJ-Type_VC)
+```
+2. T-Test
+```{r}
+# Dose = 0.5
+t_0.5 <- subset(toothData,dose==0.5)
+t.test(t_0.5$difference)
+
+# Dose = 1
+t_1 <- subset(toothData,dose==1)
+t.test(t_1$difference)
+
+# Dose = 2
+t_2 <- subset(toothData,dose==2)
+t.test(t_2$difference)
+```
+
+
+## Conclusion:
+The effect of 'OJ' appears to be better for tooth growth when the dosage is at 0.5 or 1.
+Not much of a difference is noted when the dosage is increased to 2.
+
+References:
+McNeil, D. R. (1977) Interactive Data Analysis. New York: Wiley
