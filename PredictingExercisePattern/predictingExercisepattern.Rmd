@@ -85,7 +85,7 @@ Observations:
   
 The fitted model can now be used to predict on the test data set
 ```{r cachedChunk_1, cache=TRUE}
-testing <- read.csv('/Users/maverick/Documents/PracticalML/projectDataset/pml-testing.csv', header = TRUE, sep = ",", quote = "\"",dec = ".", fill = TRUE, comment.char = "")
+testing <- read.csv('../projectDataset/pml-testing.csv', header = TRUE, sep = ",", quote = "\"",dec = ".", fill = TRUE, comment.char = "")
 pred <- predict(modelFit, testing)
 ```
 Ploting the results
