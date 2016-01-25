@@ -27,8 +27,8 @@ Steps in modeling a predictor to analyze the class
   also helps in reducing the number of features needed for prediction.
 
 ```{r}
-filenameTest= "/Users/maverick/Documents/PracticalML/projectDataset/pml-testing.csv"
-filenameTrain = "/Users/maverick/Documents/PracticalML/projectDataset/pml-training.csv"
+filenameTest= "../projectDataset/pml-testing.csv"
+filenameTrain = "../projectDataset/pml-training.csv"
 training <- read.csv(filenameTrain, header = TRUE, sep = ",", quote = "\"",
          dec = ".", fill = TRUE, comment.char = "")
 x <- subset(training, select =-classe)
