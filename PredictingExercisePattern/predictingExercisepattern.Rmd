@@ -1,4 +1,4 @@
-"Predicting the change in Exercising pattern"
+"Predicting the change in Exercising pattern over time"
 -----------------------------------------------------
 Qualitative Activity Recognition while lifting Weights
 
