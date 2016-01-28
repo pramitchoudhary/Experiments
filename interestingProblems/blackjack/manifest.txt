@@ -1,2 +1,0 @@
-Main-Class: GameManager
-Class-Path: guava-18.0.jar
