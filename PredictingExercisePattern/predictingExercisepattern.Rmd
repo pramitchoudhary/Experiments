@@ -27,6 +27,8 @@ Steps in modeling a predictor to analyze the class
   also helps in reducing the number of features needed for prediction.
 
 ```{r}
+# https://www.dropbox.com/s/j321r2dl1bj6dqw/training.csv?dl=0
+# https://www.dropbox.com/s/lnkpd0vt8v53mo5/testing.csv?dl=0
 filenameTest= "../pml-testing.csv"
 filenameTrain = "../pml-training.csv"
 training <- read.csv(filenameTrain, header = TRUE, sep = ",", quote = "\"",
