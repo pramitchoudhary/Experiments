@@ -6,7 +6,7 @@ from scipy.sparse import coo_matrix
 from sklearn.feature_extraction.text import TfidfVectorizer
 from collections import defaultdict
 abs_path = os.path.dirname(os.path.abspath(__file__))
-path = os.path.join(abs_path, 'pramit_data')
+path = os.path.join(abs_path, 'data')
 
 def sort_coo(m):
     tuples = izip(m.row, m.col, m.data)
