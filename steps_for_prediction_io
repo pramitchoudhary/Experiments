@@ -1,0 +1,23 @@
+These installation steps are for using a Vagrant VM to play around with prediction.io
+
+1. git clone https://github.com/PredictionIO/PredictionIO-Vagrant.git
+2. cd PredictionIO-Vagrant/
+3. git checkout master
+4. vim Vagrantfile(search for 2048 and change it to 4096)[Basically change the physical memory from 2gb to 4gb]
+5. vagrant up (this will take a little bit of time)
+6. vagrant ssh
+7. cd PredictionIO
+8. PredictionIO/template-scala-parallel-textclassification SpamFilter( wrapper around git )
+9. cd SpamFilter
+10. pio-stop-all
+11. pio-start-all ( make sure that the event server is running, should be the last service that comes up )
+12. pio status
+13. pio app new MyTextApp ( you might see an error related to NoSuchMethodError, ignore that for now )
+14. pio app show MyTextApp ( will list info related to the App )
+15. pio import --appid 1 --input data/emails.json ( data gets stored on HBase, in this case ) 
+16. pio build ( this will take sometime, and is a little memory intensive, if interested would recommend to install htop(   sudo apt-get install htop to monitor the memory/cpu usage )
+17. pio train ( The serialized model is stored at the following location /home/vagrant/.pio_store/models/, other config related files are at /home/vagrant/PredictionIO/conf )
+18. pio deploy ( if the deploy binding fails at port 8000, try specifying the port pio deploy —port 8001 )
+19. Once deploy instance is running, one a new tab or run pio deploy as a background process(pio deploy &) and execute the following query
+20. curl -k -H "Content-Type: application/json" -d '{"text":"Click here for fast cash!"}' https://0.0.0.0:8000/queries.json
+People who are already familiar with the spark framework, may find it interesting to play with pio-shell --with-spark
