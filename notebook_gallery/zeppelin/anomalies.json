@@ -1,0 +1,460 @@
+{
+  "paragraphs": [
+    {
+      "text": "import org.apache.spark.mllib.linalg._\nimport org.apache.spark.mllib.clustering.{KMeans, KMeansModel}\nimport org.apache.spark.rdd._\nimport org.apache.spark.sql.DataFrame\n\nval rawData = sc.textFile(\"s3://ds-etl/data/kddcup.data\")",
+      "dateUpdated": "2016-12-25T07:40:54+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1481524849094_1368573843",
+      "id": "20161212-064049_227819455",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "import org.apache.spark.mllib.linalg._\nimport org.apache.spark.mllib.clustering.{KMeans, KMeansModel}\nimport org.apache.spark.rdd._\nimport org.apache.spark.sql.DataFrame\nrawData: org.apache.spark.rdd.RDD[String] = s3://ds-etl/data/kddcup.data MapPartitionsRDD[1907] at textFile at <console>:42\n"
+      },
+      "dateCreated": "2016-12-12T06:40:49+0000",
+      "dateStarted": "2016-12-25T07:40:54+0000",
+      "dateFinished": "2016-12-25T07:40:55+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:185",
+      "focus": true
+    },
+    {
+      "text": "// Take a peek at the dataset\nrawData.toDF().show(2, false)",
+      "dateUpdated": "2016-12-25T06:52:37+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1481525833996_-1900462418",
+      "id": "20161212-065713_1319217060",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "+--------------------------------------------------------------------------------------------------------------------------------------------------+\n|value                                                                                                                                             |\n+--------------------------------------------------------------------------------------------------------------------------------------------------+\n|0,tcp,http,SF,215,45076,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,1,0.00,0.00,0.00,0.00,1.00,0.00,0.00,0,0,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,normal.|\n|0,tcp,http,SF,162,4528,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,2,2,0.00,0.00,0.00,0.00,1.00,0.00,0.00,1,1,1.00,0.00,1.00,0.00,0.00,0.00,0.00,0.00,normal. |\n+--------------------------------------------------------------------------------------------------------------------------------------------------+\nonly showing top 2 rows\n\n"
+      },
+      "dateCreated": "2016-12-12T06:57:13+0000",
+      "dateStarted": "2016-12-25T06:52:37+0000",
+      "dateFinished": "2016-12-25T06:52:51+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:186",
+      "focus": true
+    },
+    {
+      "text": "// Explore the data briefly, and check on the number of distinct labels.\n// There are 23 distinct labels with the most frequent one being on the top as we sorted the same in a reverse order\nval numberOfDistinctLabels = rawData.map(_.split(',').last).countByValue().toSeq.sortBy(_._2).reverse\nval labelsAsDf = numberOfDistinctLabels.toDF.selectExpr(\"_1 as Label\", \"_2 as Frequency\")\nlabelsAsDf.show(false)\n",
+      "dateUpdated": "2016-12-25T06:53:18+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1481525862674_1107565780",
+      "id": "20161212-065742_115870765",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "numberOfDistinctLabels: Seq[(String, Long)] = ArrayBuffer((smurf.,2807886), (neptune.,1072017), (normal.,972781), (satan.,15892), (ipsweep.,12481), (portsweep.,10413), (nmap.,2316), (back.,2203), (warezclient.,1020), (teardrop.,979), (pod.,264), (guess_passwd.,53), (buffer_overflow.,30), (land.,21), (warezmaster.,20), (imap.,12), (rootkit.,10), (loadmodule.,9), (ftp_write.,8), (multihop.,7), (phf.,4), (perl.,3), (spy.,2))\nlabelsAsDf: org.apache.spark.sql.DataFrame = [Label: string, Frequency: bigint]\n+----------------+---------+\n|Label           |Frequency|\n+----------------+---------+\n|smurf.          |2807886  |\n|neptune.        |1072017  |\n|normal.         |972781   |\n|satan.          |15892    |\n|ipsweep.        |12481    |\n|portsweep.      |10413    |\n|nmap.           |2316     |\n|back.           |2203     |\n|warezclient.    |1020     |\n|teardrop.       |979      |\n|pod.            |264      |\n|guess_passwd.   |53       |\n|buffer_overflow.|30       |\n|land.           |21       |\n|warezmaster.    |20       |\n|imap.           |12       |\n|rootkit.        |10       |\n|loadmodule.     |9        |\n|ftp_write.      |8        |\n|multihop.       |7        |\n+----------------+---------+\nonly showing top 20 rows\n\n"
+      },
+      "dateCreated": "2016-12-12T06:57:42+0000",
+      "dateStarted": "2016-12-25T06:53:18+0000",
+      "dateFinished": "2016-12-25T06:53:27+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:187",
+      "focus": true
+    },
+    {
+      "text": "val labelsAndData = rawData.map { line =>\r    val buffer = line.split(',').toBuffer;\r    buffer.remove(1, 3);\r    val label = buffer.remove(buffer.length-1);\r    val vector = Vectors.dense(buffer.map(_.toDouble).toArray);\r    (label,vector)\r}",
+      "dateUpdated": "2016-12-25T06:53:31+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1481528422476_-470074397",
+      "id": "20161212-074022_1774068120",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "labelsAndData: org.apache.spark.rdd.RDD[(String, org.apache.spark.mllib.linalg.Vector)] = MapPartitionsRDD[9] at map at <console>:36\n"
+      },
+      "dateCreated": "2016-12-12T07:40:22+0000",
+      "dateStarted": "2016-12-25T06:53:31+0000",
+      "dateFinished": "2016-12-25T06:53:32+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:188",
+      "focus": true
+    },
+    {
+      "text": "val data = labelsAndData.values.cache()\nval kmeans = new KMeans()\nval model = kmeans.setSeed(0).setRuns(10).run(data) \nmodel.clusterCenters.foreach(println)\n\nval clusterLabelCount = labelsAndData.map { case (label,datum) => \n    val cluster = model.predict(datum)\n    (cluster,label)\n}.countByValue\n\nclusterLabelCount.toSeq.sorted.foreach { \n    case ((cluster,label),count) =>\n        println(f\"$cluster%1s$label%18s$count%8s\")\n}",
+      "dateUpdated": "2016-12-25T06:53:38+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1481874099071_-1783382153",
+      "id": "20161216-074139_1248855149",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "data: org.apache.spark.rdd.RDD[org.apache.spark.mllib.linalg.Vector] = MapPartitionsRDD[10] at values at <console>:38\nkmeans: org.apache.spark.mllib.clustering.KMeans = org.apache.spark.mllib.clustering.KMeans@5de6d0cf\nmodel: org.apache.spark.mllib.clustering.KMeansModel = org.apache.spark.mllib.clustering.KMeansModel@21e75169\n[48.34019491959669,1834.6215497618625,826.2031900016945,5.7161172049003456E-6,6.487793027561892E-4,7.961734678254053E-6,0.012437658596734055,3.205108575604837E-5,0.14352904910348827,0.00808830584493399,6.818511237273984E-5,3.6746467745787934E-5,0.012934960793560386,0.0011887482315762398,7.430952366370449E-5,0.0010211435092468404,0.0,4.082940860643104E-7,8.351655530445469E-4,334.9735084506668,295.26714620807076,0.17797031701994215,0.1780369894027256,0.057664898753273755,0.05772990937912744,0.7898841322627554,0.021179610609911814,0.028260810096298133,232.98107822302248,189.21428335201279,0.7537133898004666,0.030710978823802325,0.6050519309247977,0.006464107887637286,0.17809118431825394,0.17788589813472983,0.05792761150001271,0.057659221424010296]\n[10999.0,0.0,1.309937401E9,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,1.0,1.0,1.0,0.0,0.0,255.0,1.0,0.0,0.65,1.0,0.0,0.0,0.0,1.0,1.0]\nclusterLabelCount: scala.collection.Map[(Int, String),Long] = Map((0,portsweep.) -> 10412, (0,rootkit.) -> 10, (0,buffer_overflow.) -> 30, (0,phf.) -> 4, (0,pod.) -> 264, (0,perl.) -> 3, (0,spy.) -> 2, (0,ftp_write.) -> 8, (0,nmap.) -> 2316, (0,ipsweep.) -> 12481, (0,imap.) -> 12, (0,warezmaster.) -> 20, (0,satan.) -> 15892, (0,teardrop.) -> 979, (0,smurf.) -> 2807886, (0,neptune.) -> 1072017, (0,loadmodule.) -> 9, (0,guess_passwd.) -> 53, (0,normal.) -> 972781, (0,land.) -> 21, (0,multihop.) -> 7, (1,portsweep.) -> 1, (0,warezclient.) -> 1020, (0,back.) -> 2203)\n0             back.    2203\n0  buffer_overflow.      30\n0        ftp_write.       8\n0     guess_passwd.      53\n0             imap.      12\n0          ipsweep.   12481\n0             land.      21\n0       loadmodule.       9\n0         multihop.       7\n0          neptune. 1072017\n0             nmap.    2316\n0           normal.  972781\n0             perl.       3\n0              phf.       4\n0              pod.     264\n0        portsweep.   10412\n0          rootkit.      10\n0            satan.   15892\n0            smurf. 2807886\n0              spy.       2\n0         teardrop.     979\n0      warezclient.    1020\n0      warezmaster.      20\n1        portsweep.       1\n"
+      },
+      "dateCreated": "2016-12-16T07:41:39+0000",
+      "dateStarted": "2016-12-25T06:53:38+0000",
+      "dateFinished": "2016-12-25T06:54:03+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:189",
+      "focus": true
+    },
+    {
+      "text": "def distance(a: Vector, b: Vector): Double = math.sqrt(a.toArray.zip(b.toArray).map(p => p._1 - p._2).map(d => d * d).sum)\n\ndef distToCentroid(datum: Vector, model: KMeansModel):Double = {\n    val cluster = model.predict(datum)\n    val centroid = model.clusterCenters(cluster) \n    distance(centroid, datum)\n}\n",
+      "dateUpdated": "2016-12-25T06:54:57+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1481874924168_1772649951",
+      "id": "20161216-075524_1149549115",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "distance: (a: org.apache.spark.mllib.linalg.Vector, b: org.apache.spark.mllib.linalg.Vector)Double\ndistToCentroid: (datum: org.apache.spark.mllib.linalg.Vector, model: org.apache.spark.mllib.clustering.KMeansModel)Double\n"
+      },
+      "dateCreated": "2016-12-16T07:55:24+0000",
+      "dateStarted": "2016-12-25T06:54:57+0000",
+      "dateFinished": "2016-12-25T06:54:58+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:190",
+      "focus": true
+    },
+    {
+      "text": "def clusteringScore(data: RDD[Vector], k: Int) = { \r    val kmeans = new KMeans();\r    val model = kmeans.setSeed(0).setRuns(20).setK(k).run(data);\r    (model, data.map(datum => distToCentroid(datum, model)).mean());\r}",
+      "dateUpdated": "2016-12-25T07:41:54+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1481877094622_2005734977",
+      "id": "20161216-083134_728406713",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "clusteringScore: (data: org.apache.spark.rdd.RDD[org.apache.spark.mllib.linalg.Vector], k: Int)(org.apache.spark.mllib.clustering.KMeansModel, Double)\n"
+      },
+      "dateCreated": "2016-12-16T08:31:34+0000",
+      "dateStarted": "2016-12-25T07:41:54+0000",
+      "dateFinished": "2016-12-25T07:41:55+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:191",
+      "focus": true
+    },
+    {
+      "text": "// Try range a of cluster sizes\n// It is not necessary for K-means to return the optimal solution,\n// The convergence starts from a random point to a local minimum which may or may not be the global minimum.\n(10 to 100 by 10).par.map(k => (k, clusteringScore(data, k))).\n    foreach(println)",
+      "dateUpdated": "2016-12-25T08:23:48+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1482114327029_753332938",
+      "id": "20161219-022527_1592739305",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": ""
+      },
+      "dateCreated": "2016-12-19T02:25:27+0000",
+      "dateStarted": "2016-12-25T08:23:48+0000",
+      "dateFinished": "2016-12-25T08:28:24+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:192",
+      "focus": true
+    },
+    {
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1482134148499_1717777858",
+      "id": "20161219-075548_1224204773",
+      "dateCreated": "2016-12-19T07:55:48+0000",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:193"
+    },
+    {
+      "text": "def save(inputDf:DataFrame, outDirPath:String): Unit = {\n    // Persist the table to disk for future use\n    inputDf.repartition(1).write.mode(\"append\").\n                    format(\"com.databricks.spark.csv\").option(\"header\", \"true\").\n                    save(outDirPath)\n}",
+      "dateUpdated": "2016-12-25T07:40:58+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1482131795927_-1587649957",
+      "id": "20161219-071635_1681584401",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "save: (inputDf: org.apache.spark.sql.DataFrame, outDirPath: String)Unit\n"
+      },
+      "dateCreated": "2016-12-19T07:16:35+0000",
+      "dateStarted": "2016-12-25T07:40:58+0000",
+      "dateFinished": "2016-12-25T07:40:58+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:194",
+      "focus": true
+    },
+    {
+      "text": "val finalModel = clusteringScore(data, 100)._1;\rval sample = data.map(datum =>\rfinalModel.predict(datum) + \":\" + datum.toArray.mkString(\",\"));\rsave(sample.sample(false, 0.05).toDF(), \"s3a://ds-etl/data/\")",
+      "dateUpdated": "2016-12-25T08:12:52+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1482116656769_-1532630193",
+      "id": "20161219-030416_488156973",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "finalModel: org.apache.spark.mllib.clustering.KMeansModel = org.apache.spark.mllib.clustering.KMeansModel@6a15d969\nsample: org.apache.spark.rdd.RDD[String] = MapPartitionsRDD[2752] at map at <console>:64\n"
+      },
+      "dateCreated": "2016-12-19T03:04:16+0000",
+      "dateStarted": "2016-12-25T08:12:52+0000",
+      "dateFinished": "2016-12-25T08:13:51+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:195",
+      "focus": true
+    },
+    {
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1482132213596_-1396215215",
+      "id": "20161219-072333_458291832",
+      "dateCreated": "2016-12-19T07:23:33+0000",
+      "status": "ERROR",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:196",
+      "dateUpdated": "2016-12-25T08:19:19+0000",
+      "dateFinished": "2016-12-25T08:17:05+0000",
+      "dateStarted": "2016-12-25T08:17:05+0000",
+      "result": {
+        "code": "ERROR",
+        "type": "TEXT",
+        "msg": "<console>:1: error: ';' expected but '.' found.\n%spark.r\n      ^\n"
+      },
+      "text": "//Visualization with R\n//%spark.r",
+      "focus": true
+    },
+    {
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1482653819990_-1358901454",
+      "id": "20161225-081659_487099217",
+      "dateCreated": "2016-12-25T08:16:59+0000",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500,
+      "focus": true,
+      "$$hashKey": "object:2886"
+    }
+  ],
+  "name": "AnomalyDetection",
+  "id": "2C61B55N3",
+  "angularObjects": {
+    "2BRWU4WXC:shared_process": [],
+    "2AM1YV5CU:shared_process": [],
+    "2AJXGMUUJ:shared_process": [],
+    "2ANGGHHMQ:shared_process": [],
+    "2AKK3QQXU:shared_process": []
+  },
+  "config": {
+    "looknfeel": "default"
+  },
+  "info": {}
+}
