@@ -1,0 +1,532 @@
+{
+  "paragraphs": [
+    {
+      "text": "import org.apache.spark.mllib.linalg._\nimport org.apache.spark.mllib.clustering.{KMeans, KMeansModel}\nimport org.apache.spark.rdd._\nimport org.apache.spark.sql.DataFrame\n\nval rawData = sc.textFile(\"s3://ds-etl/data/kddcup.data\")",
+      "dateUpdated": "2016-12-29T11:09:29+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1481524849094_1368573843",
+      "id": "20161212-064049_227819455",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "import org.apache.spark.mllib.linalg._\nimport org.apache.spark.mllib.clustering.{KMeans, KMeansModel}\nimport org.apache.spark.rdd._\nimport org.apache.spark.sql.DataFrame\nrawData: org.apache.spark.rdd.RDD[String] = s3://ds-etl/data/kddcup.data MapPartitionsRDD[1] at textFile at <console>:35\n"
+      },
+      "dateCreated": "2016-12-12T06:40:49+0000",
+      "dateStarted": "2016-12-29T11:09:29+0000",
+      "dateFinished": "2016-12-29T11:09:30+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:217"
+    },
+    {
+      "text": "// Take a peek at the dataset\nrawData.toDF().show(2, false)",
+      "dateUpdated": "2016-12-29T11:09:32+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1481525833996_-1900462418",
+      "id": "20161212-065713_1319217060",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "+--------------------------------------------------------------------------------------------------------------------------------------------------+\n|value                                                                                                                                             |\n+--------------------------------------------------------------------------------------------------------------------------------------------------+\n|0,tcp,http,SF,215,45076,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,1,0.00,0.00,0.00,0.00,1.00,0.00,0.00,0,0,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,normal.|\n|0,tcp,http,SF,162,4528,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,2,2,0.00,0.00,0.00,0.00,1.00,0.00,0.00,1,1,1.00,0.00,1.00,0.00,0.00,0.00,0.00,0.00,normal. |\n+--------------------------------------------------------------------------------------------------------------------------------------------------+\nonly showing top 2 rows\n\n"
+      },
+      "dateCreated": "2016-12-12T06:57:13+0000",
+      "dateStarted": "2016-12-29T11:09:32+0000",
+      "dateFinished": "2016-12-29T11:09:46+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:218"
+    },
+    {
+      "text": "// Explore the data briefly, and check on the number of distinct labels.\n// There are 23 distinct labels with the most frequent one being on the top as we sorted the same in a reverse order\nval numberOfDistinctLabels = rawData.map(_.split(',').last).countByValue().toSeq.sortBy(_._2).reverse\nval labelsAsDf = numberOfDistinctLabels.toDF.selectExpr(\"_1 as Label\", \"_2 as Frequency\")\nlabelsAsDf.show(false)\n",
+      "dateUpdated": "2016-12-29T11:09:38+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1481525862674_1107565780",
+      "id": "20161212-065742_115870765",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "numberOfDistinctLabels: Seq[(String, Long)] = ArrayBuffer((smurf.,2807886), (neptune.,1072017), (normal.,972781), (satan.,15892), (ipsweep.,12481), (portsweep.,10413), (nmap.,2316), (back.,2203), (warezclient.,1020), (teardrop.,979), (pod.,264), (guess_passwd.,53), (buffer_overflow.,30), (land.,21), (warezmaster.,20), (imap.,12), (rootkit.,10), (loadmodule.,9), (ftp_write.,8), (multihop.,7), (phf.,4), (perl.,3), (spy.,2))\nlabelsAsDf: org.apache.spark.sql.DataFrame = [Label: string, Frequency: bigint]\n+----------------+---------+\n|Label           |Frequency|\n+----------------+---------+\n|smurf.          |2807886  |\n|neptune.        |1072017  |\n|normal.         |972781   |\n|satan.          |15892    |\n|ipsweep.        |12481    |\n|portsweep.      |10413    |\n|nmap.           |2316     |\n|back.           |2203     |\n|warezclient.    |1020     |\n|teardrop.       |979      |\n|pod.            |264      |\n|guess_passwd.   |53       |\n|buffer_overflow.|30       |\n|land.           |21       |\n|warezmaster.    |20       |\n|imap.           |12       |\n|rootkit.        |10       |\n|loadmodule.     |9        |\n|ftp_write.      |8        |\n|multihop.       |7        |\n+----------------+---------+\nonly showing top 20 rows\n\n"
+      },
+      "dateCreated": "2016-12-12T06:57:42+0000",
+      "dateStarted": "2016-12-29T11:09:38+0000",
+      "dateFinished": "2016-12-29T11:09:55+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:219"
+    },
+    {
+      "text": "val labelsAndData = rawData.map { line =>\r    val buffer = line.split(',').toBuffer;\r    buffer.remove(1, 3);\r    val label = buffer.remove(buffer.length-1);\r    val vector = Vectors.dense(buffer.map(_.toDouble).toArray);\r    (label,vector)\r};\rlabelsAndData.sample(false, 0.05).toDF().show(false)",
+      "dateUpdated": "2016-12-30T02:06:35+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1481528422476_-470074397",
+      "id": "20161212-074022_1774068120",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "+-------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------+\n|_1     |_2                                                                                                                                                                    |\n+-------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------+\n|normal.|[0.0,233.0,2032.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,2.0,2.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,3.0,3.0,1.0,0.0,0.33,0.0,0.0,0.0,0.0,0.0]       |\n|normal.|[0.0,199.0,45076.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,2.0,2.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,33.0,33.0,1.0,0.0,0.03,0.0,0.0,0.0,0.0,0.0]    |\n|normal.|[0.0,220.0,1228.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3.0,3.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,36.0,36.0,1.0,0.0,0.03,0.0,0.0,0.0,0.0,0.0]     |\n|normal.|[0.0,168.0,124.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,2.0,2.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,43.0,43.0,1.0,0.0,0.02,0.0,0.0,0.0,0.0,0.0]      |\n|normal.|[0.0,205.0,1619.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3.0,3.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,9.0,77.0,1.0,0.0,0.11,0.04,0.0,0.0,0.0,0.0]     |\n|normal.|[0.0,215.0,764.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,3.0,3.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,3.0,94.0,1.0,0.0,0.33,0.05,0.0,0.0,0.0,0.0]      |\n|normal.|[0.0,260.0,1837.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,11.0,11.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,24.0,159.0,1.0,0.0,0.04,0.04,0.0,0.0,0.0,0.0] |\n|normal.|[0.0,241.0,261.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,2.0,2.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,34.0,169.0,1.0,0.0,0.03,0.04,0.0,0.0,0.0,0.0]    |\n|normal.|[0.0,257.0,818.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,12.0,12.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,44.0,179.0,1.0,0.0,0.02,0.03,0.0,0.0,0.0,0.0]  |\n|normal.|[0.0,230.0,643.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,18.0,18.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,75.0,210.0,1.0,0.0,0.01,0.03,0.0,0.0,0.0,0.0]  |\n|normal.|[0.0,225.0,3565.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,80.0,215.0,1.0,0.0,0.01,0.03,0.0,0.0,0.0,0.0]   |\n|normal.|[0.0,236.0,2728.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,2.0,2.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,86.0,221.0,1.0,0.0,0.01,0.03,0.0,0.0,0.0,0.0]   |\n|normal.|[0.0,246.0,2050.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,2.0,2.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,2.0,238.0,1.0,0.0,0.5,0.03,0.0,0.0,0.0,0.0]     |\n|normal.|[0.0,217.0,63479.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,2.0,2.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,2.0,255.0,1.0,0.0,0.5,0.04,0.0,0.0,0.0,0.0]    |\n|normal.|[0.0,202.0,4422.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,5.0,24.0,0.0,0.0,0.0,0.0,1.0,0.0,0.12,19.0,255.0,1.0,0.0,0.05,0.05,0.0,0.0,0.0,0.0] |\n|normal.|[0.0,214.0,14959.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,5.0,13.0,0.0,0.0,0.0,0.0,1.0,0.0,0.15,24.0,255.0,1.0,0.0,0.04,0.05,0.0,0.0,0.0,0.0]|\n|normal.|[0.0,219.0,17540.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,7.0,7.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,46.0,255.0,1.0,0.0,0.02,0.04,0.0,0.0,0.0,0.0]  |\n|normal.|[0.0,184.0,2653.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,16.0,255.0,1.0,0.0,0.06,0.05,0.0,0.0,0.0,0.0]   |\n|normal.|[0.0,235.0,6627.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,38.0,255.0,1.0,0.0,0.03,0.05,0.0,0.0,0.0,0.0]   |\n|normal.|[0.0,301.0,2653.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,2.0,2.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,58.0,255.0,1.0,0.0,0.02,0.05,0.0,0.0,0.0,0.0]   |\n+-------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------+\nonly showing top 20 rows\n\nlabelsAndData: org.apache.spark.rdd.RDD[(String, org.apache.spark.mllib.linalg.Vector)] = MapPartitionsRDD[1972] at map at <console>:39\n"
+      },
+      "dateCreated": "2016-12-12T07:40:22+0000",
+      "dateStarted": "2016-12-30T02:06:35+0000",
+      "dateFinished": "2016-12-30T02:06:36+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:220",
+      "focus": true
+    },
+    {
+      "text": "val data = labelsAndData.values.cache()\nval kmeans = new KMeans()\nval model = kmeans.setSeed(0).setRuns(10).run(data) \nmodel.clusterCenters.foreach(println)\n\nval clusterLabelCount = labelsAndData.map {case (label,datum) => \n    val cluster = model.predict(datum)\n    (cluster,label)\n}.countByValue\n\n\n// Sort by the number of occurrences of the label\nclusterLabelCount.toSeq.sortWith(_._2 > _._2).foreach { \n    case ((cluster,label),count) =>\n    println(f\"$cluster%1s$label%18s$count%8s\")\n}",
+      "dateUpdated": "2016-12-30T05:00:06+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1481874099071_-1783382153",
+      "id": "20161216-074139_1248855149",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "data: org.apache.spark.rdd.RDD[org.apache.spark.mllib.linalg.Vector] = MapPartitionsRDD[2454] at values at <console>:39\nkmeans: org.apache.spark.mllib.clustering.KMeans = org.apache.spark.mllib.clustering.KMeans@15e18c52\nmodel: org.apache.spark.mllib.clustering.KMeansModel = org.apache.spark.mllib.clustering.KMeansModel@35fef4a6\n[48.34019491959669,1834.6215497618625,826.2031900016945,5.7161172049003456E-6,6.487793027561892E-4,7.961734678254053E-6,0.012437658596734055,3.205108575604837E-5,0.14352904910348827,0.00808830584493399,6.818511237273984E-5,3.6746467745787934E-5,0.012934960793560386,0.0011887482315762398,7.430952366370449E-5,0.0010211435092468404,0.0,4.082940860643104E-7,8.351655530445469E-4,334.9735084506668,295.26714620807076,0.17797031701994215,0.1780369894027256,0.057664898753273755,0.05772990937912744,0.7898841322627553,0.021179610609911814,0.028260810096298133,232.98107822302248,189.21428335201279,0.7537133898004665,0.030710978823802325,0.6050519309247977,0.006464107887637285,0.17809118431825394,0.1778858981347298,0.057927611500012695,0.057659221424010296]\n[10999.0,0.0,1.309937401E9,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,1.0,0.0,0.0,1.0,1.0,1.0,0.0,0.0,255.0,1.0,0.0,0.65,1.0,0.0,0.0,0.0,1.0,1.0]\nclusterLabelCount: scala.collection.Map[(Int, String),Long] = Map((0,portsweep.) -> 10412, (0,rootkit.) -> 10, (0,buffer_overflow.) -> 30, (0,phf.) -> 4, (0,pod.) -> 264, (0,perl.) -> 3, (0,spy.) -> 2, (0,ftp_write.) -> 8, (0,nmap.) -> 2316, (0,ipsweep.) -> 12481, (0,imap.) -> 12, (0,warezmaster.) -> 20, (0,satan.) -> 15892, (0,teardrop.) -> 979, (0,smurf.) -> 2807886, (0,neptune.) -> 1072017, (0,loadmodule.) -> 9, (0,guess_passwd.) -> 53, (0,normal.) -> 972781, (0,land.) -> 21, (0,multihop.) -> 7, (1,portsweep.) -> 1, (0,warezclient.) -> 1020, (0,back.) -> 2203)\n0            smurf. 2807886\n0          neptune. 1072017\n0           normal.  972781\n0            satan.   15892\n0          ipsweep.   12481\n0        portsweep.   10412\n0             nmap.    2316\n0             back.    2203\n0      warezclient.    1020\n0         teardrop.     979\n0              pod.     264\n0     guess_passwd.      53\n0  buffer_overflow.      30\n0             land.      21\n0      warezmaster.      20\n0             imap.      12\n0          rootkit.      10\n0       loadmodule.       9\n0        ftp_write.       8\n0         multihop.       7\n0              phf.       4\n0             perl.       3\n0              spy.       2\n1        portsweep.       1\n"
+      },
+      "dateCreated": "2016-12-16T07:41:39+0000",
+      "dateStarted": "2016-12-30T05:00:06+0000",
+      "dateFinished": "2016-12-30T05:00:29+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:221",
+      "focus": true
+    },
+    {
+      "text": "def distance(a: Vector, b: Vector): Double = math.sqrt(a.toArray.zip(b.toArray).map(p => p._1 - p._2).map(d => d * d).sum)\n\ndef distToCentroid(datum: Vector, model: KMeansModel):Double = {\n    val cluster = model.predict(datum)\n    val centroid = model.clusterCenters(cluster) \n    distance(centroid, datum)\n}\n",
+      "dateUpdated": "2016-12-29T11:11:42+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1481874924168_1772649951",
+      "id": "20161216-075524_1149549115",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "distance: (a: org.apache.spark.mllib.linalg.Vector, b: org.apache.spark.mllib.linalg.Vector)Double\ndistToCentroid: (datum: org.apache.spark.mllib.linalg.Vector, model: org.apache.spark.mllib.clustering.KMeansModel)Double\n"
+      },
+      "dateCreated": "2016-12-16T07:55:24+0000",
+      "dateStarted": "2016-12-29T11:11:42+0000",
+      "dateFinished": "2016-12-29T11:11:43+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:222"
+    },
+    {
+      "text": "def clusteringScore(data: RDD[Vector], k: Int) = { \r    val kmeans = new KMeans();\r    val model = kmeans.setSeed(0).setRuns(20).setK(k).run(data);\r    (model, data.map(datum => distToCentroid(datum, model)).mean());\r}",
+      "dateUpdated": "2016-12-29T11:11:44+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1481877094622_2005734977",
+      "id": "20161216-083134_728406713",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "clusteringScore: (data: org.apache.spark.rdd.RDD[org.apache.spark.mllib.linalg.Vector], k: Int)(org.apache.spark.mllib.clustering.KMeansModel, Double)\n"
+      },
+      "dateCreated": "2016-12-16T08:31:34+0000",
+      "dateStarted": "2016-12-29T11:11:44+0000",
+      "dateFinished": "2016-12-29T11:11:44+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:223"
+    },
+    {
+      "text": "// Try range a of cluster sizes\n// It is not necessary for K-means to return the optimal solution,\n// The convergence starts from a random point to a local minimum which may or may not be the global minimum.\n(10 to 100 by 10).map(k => (k, clusteringScore(data, k))).\n    foreach(println)",
+      "dateUpdated": "2016-12-29T11:33:51+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1482114327029_753332938",
+      "id": "20161219-022527_1592739305",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "(10,(org.apache.spark.mllib.clustering.KMeansModel@38cb5b5a,1609.5385534070608))\n(20,(org.apache.spark.mllib.clustering.KMeansModel@4300961e,1294.2015878504692))\n(30,(org.apache.spark.mllib.clustering.KMeansModel@3fcb2f4,885.8308480066343))\n(40,(org.apache.spark.mllib.clustering.KMeansModel@294c335e,494.5726161144918))\n(50,(org.apache.spark.mllib.clustering.KMeansModel@34a85ad0,381.753415606063))\n(60,(org.apache.spark.mllib.clustering.KMeansModel@6476bd98,233.84408850836897))\n(70,(org.apache.spark.mllib.clustering.KMeansModel@77c8ca25,269.96119195224907))\n(80,(org.apache.spark.mllib.clustering.KMeansModel@67acafed,176.86311605311465))\n(90,(org.apache.spark.mllib.clustering.KMeansModel@42683a0a,160.15981281142086))\n(100,(org.apache.spark.mllib.clustering.KMeansModel@1a7f5764,119.82299106613301))\n"
+      },
+      "dateCreated": "2016-12-19T02:25:27+0000",
+      "dateStarted": "2016-12-29T11:33:51+0000",
+      "dateFinished": "2016-12-29T11:39:18+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:224"
+    },
+    {
+      "text": "def save(inputDf:DataFrame, outDirPath:String): Unit = {\n    // Persist the table to disk for future use\n    inputDf.repartition(1).write.mode(\"append\").\n                    format(\"com.databricks.spark.csv\").option(\"header\", \"true\").\n                    save(outDirPath)\n}",
+      "dateUpdated": "2016-12-25T07:40:58+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1482131795927_-1587649957",
+      "id": "20161219-071635_1681584401",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "save: (inputDf: org.apache.spark.sql.DataFrame, outDirPath: String)Unit\n"
+      },
+      "dateCreated": "2016-12-19T07:16:35+0000",
+      "dateStarted": "2016-12-25T07:40:58+0000",
+      "dateFinished": "2016-12-25T07:40:58+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:225"
+    },
+    {
+      "text": "val finalModel = clusteringScore(data, 100)._1;\rval sample = data.map(datum =>\rfinalModel.predict(datum) + \":\" + datum.toArray.mkString(\",\"));\rsave(sample.sample(false, 0.05).toDF(), \"s3a://ds-etl/data/\")",
+      "dateUpdated": "2016-12-25T08:12:52+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1482116656769_-1532630193",
+      "id": "20161219-030416_488156973",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "finalModel: org.apache.spark.mllib.clustering.KMeansModel = org.apache.spark.mllib.clustering.KMeansModel@6a15d969\nsample: org.apache.spark.rdd.RDD[String] = MapPartitionsRDD[2752] at map at <console>:64\n"
+      },
+      "dateCreated": "2016-12-19T03:04:16+0000",
+      "dateStarted": "2016-12-25T08:12:52+0000",
+      "dateFinished": "2016-12-25T08:13:51+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:226"
+    },
+    {
+      "text": "%python\nimport matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\nplt.figure()\nplt.plot([1,2,3,4])\nplt.ylabel('some numbers')\nz.show(plt, width='500px')\nplt.close()",
+      "dateUpdated": "2016-12-29T08:59:01+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1482653819990_-1358901454",
+      "id": "20161225-081659_487099217",
+      "result": {
+        "code": "SUCCESS",
+        "type": "HTML",
+        "msg": "<div style='width:500px'><?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?>\n\r<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n\r  \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n\r<!-- Created with matplotlib (http://matplotlib.org/) -->\n\r<svg height=\"345pt\" version=\"1.1\" viewBox=\"0 0 460 345\" width=\"460pt\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n\r <defs>\n\r  <style type=\"text/css\">\n\r*{stroke-linecap:butt;stroke-linejoin:round;}\n\r  </style>\n\r </defs>\n\r <g id=\"figure_1\">\n\r  <g id=\"patch_1\">\n\r   <path d=\"M 0 345.6 \n\rL 460.8 345.6 \n\rL 460.8 0 \n\rL 0 0 \n\rz\n\r\" style=\"fill:#ffffff;\"/>\n\r  </g>\n\r  <g id=\"axes_1\">\n\r   <g id=\"patch_2\">\n\r    <path d=\"M 57.6 307.584 \n\rL 414.72 307.584 \n\rL 414.72 41.472 \n\rL 57.6 41.472 \n\rz\n\r\" style=\"fill:#ffffff;\"/>\n\r   </g>\n\r   <g id=\"matplotlib.axis_1\">\n\r    <g id=\"xtick_1\">\n\r     <g id=\"line2d_1\">\n\r      <defs>\n\r       <path d=\"M 0 0 \n\rL 0 3.5 \n\r\" id=\"m720e4ee433\" style=\"stroke:#000000;stroke-width:0.8;\"/>\n\r      </defs>\n\r      <g>\n\r       <use style=\"stroke:#000000;stroke-width:0.8;\" x=\"73.832727\" xlink:href=\"#m720e4ee433\" y=\"307.584\"/>\n\r      </g>\n\r     </g>\n\r     <g id=\"text_1\">\n\r      <!-- 0.0 -->\n\r      <defs>\n\r       <path d=\"M 31.78125 66.40625 \n\rQ 24.171875 66.40625 20.328125 58.90625 \n\rQ 16.5 51.421875 16.5 36.375 \n\rQ 16.5 21.390625 20.328125 13.890625 \n\rQ 24.171875 6.390625 31.78125 6.390625 \n\rQ 39.453125 6.390625 43.28125 13.890625 \n\rQ 47.125 21.390625 47.125 36.375 \n\rQ 47.125 51.421875 43.28125 58.90625 \n\rQ 39.453125 66.40625 31.78125 66.40625 \n\rM 31.78125 74.21875 \n\rQ 44.046875 74.21875 50.515625 64.515625 \n\rQ 56.984375 54.828125 56.984375 36.375 \n\rQ 56.984375 17.96875 50.515625 8.265625 \n\rQ 44.046875 -1.421875 31.78125 -1.421875 \n\rQ 19.53125 -1.421875 13.0625 8.265625 \n\rQ 6.59375 17.96875 6.59375 36.375 \n\rQ 6.59375 54.828125 13.0625 64.515625 \n\rQ 19.53125 74.21875 31.78125 74.21875 \n\r\" id=\"DejaVuSans-30\"/>\n\r       <path d=\"M 10.6875 12.40625 \n\rL 21 12.40625 \n\rL 21 0 \n\rL 10.6875 0 \n\rz\n\r\" id=\"DejaVuSans-2e\"/>\n\r      </defs>\n\r      <g transform=\"translate(65.881165 322.182437)scale(0.1 -0.1)\">\n\r       <use xlink:href=\"#DejaVuSans-30\"/>\n\r       <use x=\"63.623047\" xlink:href=\"#DejaVuSans-2e\"/>\n\r       <use x=\"95.410156\" xlink:href=\"#DejaVuSans-30\"/>\n\r      </g>\n\r     </g>\n\r    </g>\n\r    <g id=\"xtick_2\">\n\r     <g id=\"line2d_2\">\n\r      <g>\n\r       <use style=\"stroke:#000000;stroke-width:0.8;\" x=\"127.941818\" xlink:href=\"#m720e4ee433\" y=\"307.584\"/>\n\r      </g>\n\r     </g>\n\r     <g id=\"text_2\">\n\r      <!-- 0.5 -->\n\r      <defs>\n\r       <path d=\"M 10.796875 72.90625 \n\rL 49.515625 72.90625 \n\rL 49.515625 64.59375 \n\rL 19.828125 64.59375 \n\rL 19.828125 46.734375 \n\rQ 21.96875 47.46875 24.109375 47.828125 \n\rQ 26.265625 48.1875 28.421875 48.1875 \n\rQ 40.625 48.1875 47.75 41.5 \n\rQ 54.890625 34.8125 54.890625 23.390625 \n\rQ 54.890625 11.625 47.5625 5.09375 \n\rQ 40.234375 -1.421875 26.90625 -1.421875 \n\rQ 22.3125 -1.421875 17.546875 -0.640625 \n\rQ 12.796875 0.140625 7.71875 1.703125 \n\rL 7.71875 11.625 \n\rQ 12.109375 9.234375 16.796875 8.0625 \n\rQ 21.484375 6.890625 26.703125 6.890625 \n\rQ 35.15625 6.890625 40.078125 11.328125 \n\rQ 45.015625 15.765625 45.015625 23.390625 \n\rQ 45.015625 31 40.078125 35.4375 \n\rQ 35.15625 39.890625 26.703125 39.890625 \n\rQ 22.75 39.890625 18.8125 39.015625 \n\rQ 14.890625 38.140625 10.796875 36.28125 \n\rz\n\r\" id=\"DejaVuSans-35\"/>\n\r      </defs>\n\r      <g transform=\"translate(119.990256 322.182437)scale(0.1 -0.1)\">\n\r       <use xlink:href=\"#DejaVuSans-30\"/>\n\r       <use x=\"63.623047\" xlink:href=\"#DejaVuSans-2e\"/>\n\r       <use x=\"95.410156\" xlink:href=\"#DejaVuSans-35\"/>\n\r      </g>\n\r     </g>\n\r    </g>\n\r    <g id=\"xtick_3\">\n\r     <g id=\"line2d_3\">\n\r      <g>\n\r       <use style=\"stroke:#000000;stroke-width:0.8;\" x=\"182.050909\" xlink:href=\"#m720e4ee433\" y=\"307.584\"/>\n\r      </g>\n\r     </g>\n\r     <g id=\"text_3\">\n\r      <!-- 1.0 -->\n\r      <defs>\n\r       <path d=\"M 12.40625 8.296875 \n\rL 28.515625 8.296875 \n\rL 28.515625 63.921875 \n\rL 10.984375 60.40625 \n\rL 10.984375 69.390625 \n\rL 28.421875 72.90625 \n\rL 38.28125 72.90625 \n\rL 38.28125 8.296875 \n\rL 54.390625 8.296875 \n\rL 54.390625 0 \n\rL 12.40625 0 \n\rz\n\r\" id=\"DejaVuSans-31\"/>\n\r      </defs>\n\r      <g transform=\"translate(174.099347 322.182437)scale(0.1 -0.1)\">\n\r       <use xlink:href=\"#DejaVuSans-31\"/>\n\r       <use x=\"63.623047\" xlink:href=\"#DejaVuSans-2e\"/>\n\r       <use x=\"95.410156\" xlink:href=\"#DejaVuSans-30\"/>\n\r      </g>\n\r     </g>\n\r    </g>\n\r    <g id=\"xtick_4\">\n\r     <g id=\"line2d_4\">\n\r      <g>\n\r       <use style=\"stroke:#000000;stroke-width:0.8;\" x=\"236.16\" xlink:href=\"#m720e4ee433\" y=\"307.584\"/>\n\r      </g>\n\r     </g>\n\r     <g id=\"text_4\">\n\r      <!-- 1.5 -->\n\r      <g transform=\"translate(228.208438 322.182437)scale(0.1 -0.1)\">\n\r       <use xlink:href=\"#DejaVuSans-31\"/>\n\r       <use x=\"63.623047\" xlink:href=\"#DejaVuSans-2e\"/>\n\r       <use x=\"95.410156\" xlink:href=\"#DejaVuSans-35\"/>\n\r      </g>\n\r     </g>\n\r    </g>\n\r    <g id=\"xtick_5\">\n\r     <g id=\"line2d_5\">\n\r      <g>\n\r       <use style=\"stroke:#000000;stroke-width:0.8;\" x=\"290.269091\" xlink:href=\"#m720e4ee433\" y=\"307.584\"/>\n\r      </g>\n\r     </g>\n\r     <g id=\"text_5\">\n\r      <!-- 2.0 -->\n\r      <defs>\n\r       <path d=\"M 19.1875 8.296875 \n\rL 53.609375 8.296875 \n\rL 53.609375 0 \n\rL 7.328125 0 \n\rL 7.328125 8.296875 \n\rQ 12.9375 14.109375 22.625 23.890625 \n\rQ 32.328125 33.6875 34.8125 36.53125 \n\rQ 39.546875 41.84375 41.421875 45.53125 \n\rQ 43.3125 49.21875 43.3125 52.78125 \n\rQ 43.3125 58.59375 39.234375 62.25 \n\rQ 35.15625 65.921875 28.609375 65.921875 \n\rQ 23.96875 65.921875 18.8125 64.3125 \n\rQ 13.671875 62.703125 7.8125 59.421875 \n\rL 7.8125 69.390625 \n\rQ 13.765625 71.78125 18.9375 73 \n\rQ 24.125 74.21875 28.421875 74.21875 \n\rQ 39.75 74.21875 46.484375 68.546875 \n\rQ 53.21875 62.890625 53.21875 53.421875 \n\rQ 53.21875 48.921875 51.53125 44.890625 \n\rQ 49.859375 40.875 45.40625 35.40625 \n\rQ 44.1875 33.984375 37.640625 27.21875 \n\rQ 31.109375 20.453125 19.1875 8.296875 \n\r\" id=\"DejaVuSans-32\"/>\n\r      </defs>\n\r      <g transform=\"translate(282.317528 322.182437)scale(0.1 -0.1)\">\n\r       <use xlink:href=\"#DejaVuSans-32\"/>\n\r       <use x=\"63.623047\" xlink:href=\"#DejaVuSans-2e\"/>\n\r       <use x=\"95.410156\" xlink:href=\"#DejaVuSans-30\"/>\n\r      </g>\n\r     </g>\n\r    </g>\n\r    <g id=\"xtick_6\">\n\r     <g id=\"line2d_6\">\n\r      <g>\n\r       <use style=\"stroke:#000000;stroke-width:0.8;\" x=\"344.378182\" xlink:href=\"#m720e4ee433\" y=\"307.584\"/>\n\r      </g>\n\r     </g>\n\r     <g id=\"text_6\">\n\r      <!-- 2.5 -->\n\r      <g transform=\"translate(336.426619 322.182437)scale(0.1 -0.1)\">\n\r       <use xlink:href=\"#DejaVuSans-32\"/>\n\r       <use x=\"63.623047\" xlink:href=\"#DejaVuSans-2e\"/>\n\r       <use x=\"95.410156\" xlink:href=\"#DejaVuSans-35\"/>\n\r      </g>\n\r     </g>\n\r    </g>\n\r    <g id=\"xtick_7\">\n\r     <g id=\"line2d_7\">\n\r      <g>\n\r       <use style=\"stroke:#000000;stroke-width:0.8;\" x=\"398.487273\" xlink:href=\"#m720e4ee433\" y=\"307.584\"/>\n\r      </g>\n\r     </g>\n\r     <g id=\"text_7\">\n\r      <!-- 3.0 -->\n\r      <defs>\n\r       <path d=\"M 40.578125 39.3125 \n\rQ 47.65625 37.796875 51.625 33 \n\rQ 55.609375 28.21875 55.609375 21.1875 \n\rQ 55.609375 10.40625 48.1875 4.484375 \n\rQ 40.765625 -1.421875 27.09375 -1.421875 \n\rQ 22.515625 -1.421875 17.65625 -0.515625 \n\rQ 12.796875 0.390625 7.625 2.203125 \n\rL 7.625 11.71875 \n\rQ 11.71875 9.328125 16.59375 8.109375 \n\rQ 21.484375 6.890625 26.8125 6.890625 \n\rQ 36.078125 6.890625 40.9375 10.546875 \n\rQ 45.796875 14.203125 45.796875 21.1875 \n\rQ 45.796875 27.640625 41.28125 31.265625 \n\rQ 36.765625 34.90625 28.71875 34.90625 \n\rL 20.21875 34.90625 \n\rL 20.21875 43.015625 \n\rL 29.109375 43.015625 \n\rQ 36.375 43.015625 40.234375 45.921875 \n\rQ 44.09375 48.828125 44.09375 54.296875 \n\rQ 44.09375 59.90625 40.109375 62.90625 \n\rQ 36.140625 65.921875 28.71875 65.921875 \n\rQ 24.65625 65.921875 20.015625 65.03125 \n\rQ 15.375 64.15625 9.8125 62.3125 \n\rL 9.8125 71.09375 \n\rQ 15.4375 72.65625 20.34375 73.4375 \n\rQ 25.25 74.21875 29.59375 74.21875 \n\rQ 40.828125 74.21875 47.359375 69.109375 \n\rQ 53.90625 64.015625 53.90625 55.328125 \n\rQ 53.90625 49.265625 50.4375 45.09375 \n\rQ 46.96875 40.921875 40.578125 39.3125 \n\r\" id=\"DejaVuSans-33\"/>\n\r      </defs>\n\r      <g transform=\"translate(390.53571 322.182437)scale(0.1 -0.1)\">\n\r       <use xlink:href=\"#DejaVuSans-33\"/>\n\r       <use x=\"63.623047\" xlink:href=\"#DejaVuSans-2e\"/>\n\r       <use x=\"95.410156\" xlink:href=\"#DejaVuSans-30\"/>\n\r      </g>\n\r     </g>\n\r    </g>\n\r   </g>\n\r   <g id=\"matplotlib.axis_2\">\n\r    <g id=\"ytick_1\">\n\r     <g id=\"line2d_8\">\n\r      <defs>\n\r       <path d=\"M 0 0 \n\rL -3.5 0 \n\r\" id=\"m966dd619dd\" style=\"stroke:#000000;stroke-width:0.8;\"/>\n\r      </defs>\n\r      <g>\n\r       <use style=\"stroke:#000000;stroke-width:0.8;\" x=\"57.6\" xlink:href=\"#m966dd619dd\" y=\"295.488\"/>\n\r      </g>\n\r     </g>\n\r     <g id=\"text_8\">\n\r      <!-- 1.0 -->\n\r      <g transform=\"translate(34.696875 299.287219)scale(0.1 -0.1)\">\n\r       <use xlink:href=\"#DejaVuSans-31\"/>\n\r       <use x=\"63.623047\" xlink:href=\"#DejaVuSans-2e\"/>\n\r       <use x=\"95.410156\" xlink:href=\"#DejaVuSans-30\"/>\n\r      </g>\n\r     </g>\n\r    </g>\n\r    <g id=\"ytick_2\">\n\r     <g id=\"line2d_9\">\n\r      <g>\n\r       <use style=\"stroke:#000000;stroke-width:0.8;\" x=\"57.6\" xlink:href=\"#m966dd619dd\" y=\"255.168\"/>\n\r      </g>\n\r     </g>\n\r     <g id=\"text_9\">\n\r      <!-- 1.5 -->\n\r      <g transform=\"translate(34.696875 258.967219)scale(0.1 -0.1)\">\n\r       <use xlink:href=\"#DejaVuSans-31\"/>\n\r       <use x=\"63.623047\" xlink:href=\"#DejaVuSans-2e\"/>\n\r       <use x=\"95.410156\" xlink:href=\"#DejaVuSans-35\"/>\n\r      </g>\n\r     </g>\n\r    </g>\n\r    <g id=\"ytick_3\">\n\r     <g id=\"line2d_10\">\n\r      <g>\n\r       <use style=\"stroke:#000000;stroke-width:0.8;\" x=\"57.6\" xlink:href=\"#m966dd619dd\" y=\"214.848\"/>\n\r      </g>\n\r     </g>\n\r     <g id=\"text_10\">\n\r      <!-- 2.0 -->\n\r      <g transform=\"translate(34.696875 218.647219)scale(0.1 -0.1)\">\n\r       <use xlink:href=\"#DejaVuSans-32\"/>\n\r       <use x=\"63.623047\" xlink:href=\"#DejaVuSans-2e\"/>\n\r       <use x=\"95.410156\" xlink:href=\"#DejaVuSans-30\"/>\n\r      </g>\n\r     </g>\n\r    </g>\n\r    <g id=\"ytick_4\">\n\r     <g id=\"line2d_11\">\n\r      <g>\n\r       <use style=\"stroke:#000000;stroke-width:0.8;\" x=\"57.6\" xlink:href=\"#m966dd619dd\" y=\"174.528\"/>\n\r      </g>\n\r     </g>\n\r     <g id=\"text_11\">\n\r      <!-- 2.5 -->\n\r      <g transform=\"translate(34.696875 178.327219)scale(0.1 -0.1)\">\n\r       <use xlink:href=\"#DejaVuSans-32\"/>\n\r       <use x=\"63.623047\" xlink:href=\"#DejaVuSans-2e\"/>\n\r       <use x=\"95.410156\" xlink:href=\"#DejaVuSans-35\"/>\n\r      </g>\n\r     </g>\n\r    </g>\n\r    <g id=\"ytick_5\">\n\r     <g id=\"line2d_12\">\n\r      <g>\n\r       <use style=\"stroke:#000000;stroke-width:0.8;\" x=\"57.6\" xlink:href=\"#m966dd619dd\" y=\"134.208\"/>\n\r      </g>\n\r     </g>\n\r     <g id=\"text_12\">\n\r      <!-- 3.0 -->\n\r      <g transform=\"translate(34.696875 138.007219)scale(0.1 -0.1)\">\n\r       <use xlink:href=\"#DejaVuSans-33\"/>\n\r       <use x=\"63.623047\" xlink:href=\"#DejaVuSans-2e\"/>\n\r       <use x=\"95.410156\" xlink:href=\"#DejaVuSans-30\"/>\n\r      </g>\n\r     </g>\n\r    </g>\n\r    <g id=\"ytick_6\">\n\r     <g id=\"line2d_13\">\n\r      <g>\n\r       <use style=\"stroke:#000000;stroke-width:0.8;\" x=\"57.6\" xlink:href=\"#m966dd619dd\" y=\"93.888\"/>\n\r      </g>\n\r     </g>\n\r     <g id=\"text_13\">\n\r      <!-- 3.5 -->\n\r      <g transform=\"translate(34.696875 97.687219)scale(0.1 -0.1)\">\n\r       <use xlink:href=\"#DejaVuSans-33\"/>\n\r       <use x=\"63.623047\" xlink:href=\"#DejaVuSans-2e\"/>\n\r       <use x=\"95.410156\" xlink:href=\"#DejaVuSans-35\"/>\n\r      </g>\n\r     </g>\n\r    </g>\n\r    <g id=\"ytick_7\">\n\r     <g id=\"line2d_14\">\n\r      <g>\n\r       <use style=\"stroke:#000000;stroke-width:0.8;\" x=\"57.6\" xlink:href=\"#m966dd619dd\" y=\"53.568\"/>\n\r      </g>\n\r     </g>\n\r     <g id=\"text_14\">\n\r      <!-- 4.0 -->\n\r      <defs>\n\r       <path d=\"M 37.796875 64.3125 \n\rL 12.890625 25.390625 \n\rL 37.796875 25.390625 \n\rz\n\rM 35.203125 72.90625 \n\rL 47.609375 72.90625 \n\rL 47.609375 25.390625 \n\rL 58.015625 25.390625 \n\rL 58.015625 17.1875 \n\rL 47.609375 17.1875 \n\rL 47.609375 0 \n\rL 37.796875 0 \n\rL 37.796875 17.1875 \n\rL 4.890625 17.1875 \n\rL 4.890625 26.703125 \n\rz\n\r\" id=\"DejaVuSans-34\"/>\n\r      </defs>\n\r      <g transform=\"translate(34.696875 57.367219)scale(0.1 -0.1)\">\n\r       <use xlink:href=\"#DejaVuSans-34\"/>\n\r       <use x=\"63.623047\" xlink:href=\"#DejaVuSans-2e\"/>\n\r       <use x=\"95.410156\" xlink:href=\"#DejaVuSans-30\"/>\n\r      </g>\n\r     </g>\n\r    </g>\n\r    <g id=\"text_15\">\n\r     <!-- some numbers -->\n\r     <defs>\n\r      <path d=\"M 44.28125 53.078125 \n\rL 44.28125 44.578125 \n\rQ 40.484375 46.53125 36.375 47.5 \n\rQ 32.28125 48.484375 27.875 48.484375 \n\rQ 21.1875 48.484375 17.84375 46.4375 \n\rQ 14.5 44.390625 14.5 40.28125 \n\rQ 14.5 37.15625 16.890625 35.375 \n\rQ 19.28125 33.59375 26.515625 31.984375 \n\rL 29.59375 31.296875 \n\rQ 39.15625 29.25 43.1875 25.515625 \n\rQ 47.21875 21.78125 47.21875 15.09375 \n\rQ 47.21875 7.46875 41.1875 3.015625 \n\rQ 35.15625 -1.421875 24.609375 -1.421875 \n\rQ 20.21875 -1.421875 15.453125 -0.5625 \n\rQ 10.6875 0.296875 5.421875 2 \n\rL 5.421875 11.28125 \n\rQ 10.40625 8.6875 15.234375 7.390625 \n\rQ 20.0625 6.109375 24.8125 6.109375 \n\rQ 31.15625 6.109375 34.5625 8.28125 \n\rQ 37.984375 10.453125 37.984375 14.40625 \n\rQ 37.984375 18.0625 35.515625 20.015625 \n\rQ 33.0625 21.96875 24.703125 23.78125 \n\rL 21.578125 24.515625 \n\rQ 13.234375 26.265625 9.515625 29.90625 \n\rQ 5.8125 33.546875 5.8125 39.890625 \n\rQ 5.8125 47.609375 11.28125 51.796875 \n\rQ 16.75 56 26.8125 56 \n\rQ 31.78125 56 36.171875 55.265625 \n\rQ 40.578125 54.546875 44.28125 53.078125 \n\r\" id=\"DejaVuSans-73\"/>\n\r      <path d=\"M 30.609375 48.390625 \n\rQ 23.390625 48.390625 19.1875 42.75 \n\rQ 14.984375 37.109375 14.984375 27.296875 \n\rQ 14.984375 17.484375 19.15625 11.84375 \n\rQ 23.34375 6.203125 30.609375 6.203125 \n\rQ 37.796875 6.203125 41.984375 11.859375 \n\rQ 46.1875 17.53125 46.1875 27.296875 \n\rQ 46.1875 37.015625 41.984375 42.703125 \n\rQ 37.796875 48.390625 30.609375 48.390625 \n\rM 30.609375 56 \n\rQ 42.328125 56 49.015625 48.375 \n\rQ 55.71875 40.765625 55.71875 27.296875 \n\rQ 55.71875 13.875 49.015625 6.21875 \n\rQ 42.328125 -1.421875 30.609375 -1.421875 \n\rQ 18.84375 -1.421875 12.171875 6.21875 \n\rQ 5.515625 13.875 5.515625 27.296875 \n\rQ 5.515625 40.765625 12.171875 48.375 \n\rQ 18.84375 56 30.609375 56 \n\r\" id=\"DejaVuSans-6f\"/>\n\r      <path d=\"M 52 44.1875 \n\rQ 55.375 50.25 60.0625 53.125 \n\rQ 64.75 56 71.09375 56 \n\rQ 79.640625 56 84.28125 50.015625 \n\rQ 88.921875 44.046875 88.921875 33.015625 \n\rL 88.921875 0 \n\rL 79.890625 0 \n\rL 79.890625 32.71875 \n\rQ 79.890625 40.578125 77.09375 44.375 \n\rQ 74.3125 48.1875 68.609375 48.1875 \n\rQ 61.625 48.1875 57.5625 43.546875 \n\rQ 53.515625 38.921875 53.515625 30.90625 \n\rL 53.515625 0 \n\rL 44.484375 0 \n\rL 44.484375 32.71875 \n\rQ 44.484375 40.625 41.703125 44.40625 \n\rQ 38.921875 48.1875 33.109375 48.1875 \n\rQ 26.21875 48.1875 22.15625 43.53125 \n\rQ 18.109375 38.875 18.109375 30.90625 \n\rL 18.109375 0 \n\rL 9.078125 0 \n\rL 9.078125 54.6875 \n\rL 18.109375 54.6875 \n\rL 18.109375 46.1875 \n\rQ 21.1875 51.21875 25.484375 53.609375 \n\rQ 29.78125 56 35.6875 56 \n\rQ 41.65625 56 45.828125 52.96875 \n\rQ 50 49.953125 52 44.1875 \n\r\" id=\"DejaVuSans-6d\"/>\n\r      <path d=\"M 56.203125 29.59375 \n\rL 56.203125 25.203125 \n\rL 14.890625 25.203125 \n\rQ 15.484375 15.921875 20.484375 11.0625 \n\rQ 25.484375 6.203125 34.421875 6.203125 \n\rQ 39.59375 6.203125 44.453125 7.46875 \n\rQ 49.3125 8.734375 54.109375 11.28125 \n\rL 54.109375 2.78125 \n\rQ 49.265625 0.734375 44.1875 -0.34375 \n\rQ 39.109375 -1.421875 33.890625 -1.421875 \n\rQ 20.796875 -1.421875 13.15625 6.1875 \n\rQ 5.515625 13.8125 5.515625 26.8125 \n\rQ 5.515625 40.234375 12.765625 48.109375 \n\rQ 20.015625 56 32.328125 56 \n\rQ 43.359375 56 49.78125 48.890625 \n\rQ 56.203125 41.796875 56.203125 29.59375 \n\rM 47.21875 32.234375 \n\rQ 47.125 39.59375 43.09375 43.984375 \n\rQ 39.0625 48.390625 32.421875 48.390625 \n\rQ 24.90625 48.390625 20.390625 44.140625 \n\rQ 15.875 39.890625 15.1875 32.171875 \n\rz\n\r\" id=\"DejaVuSans-65\"/>\n\r      <path id=\"DejaVuSans-20\"/>\n\r      <path d=\"M 54.890625 33.015625 \n\rL 54.890625 0 \n\rL 45.90625 0 \n\rL 45.90625 32.71875 \n\rQ 45.90625 40.484375 42.875 44.328125 \n\rQ 39.84375 48.1875 33.796875 48.1875 \n\rQ 26.515625 48.1875 22.3125 43.546875 \n\rQ 18.109375 38.921875 18.109375 30.90625 \n\rL 18.109375 0 \n\rL 9.078125 0 \n\rL 9.078125 54.6875 \n\rL 18.109375 54.6875 \n\rL 18.109375 46.1875 \n\rQ 21.34375 51.125 25.703125 53.5625 \n\rQ 30.078125 56 35.796875 56 \n\rQ 45.21875 56 50.046875 50.171875 \n\rQ 54.890625 44.34375 54.890625 33.015625 \n\r\" id=\"DejaVuSans-6e\"/>\n\r      <path d=\"M 8.5 21.578125 \n\rL 8.5 54.6875 \n\rL 17.484375 54.6875 \n\rL 17.484375 21.921875 \n\rQ 17.484375 14.15625 20.5 10.265625 \n\rQ 23.53125 6.390625 29.59375 6.390625 \n\rQ 36.859375 6.390625 41.078125 11.03125 \n\rQ 45.3125 15.671875 45.3125 23.6875 \n\rL 45.3125 54.6875 \n\rL 54.296875 54.6875 \n\rL 54.296875 0 \n\rL 45.3125 0 \n\rL 45.3125 8.40625 \n\rQ 42.046875 3.421875 37.71875 1 \n\rQ 33.40625 -1.421875 27.6875 -1.421875 \n\rQ 18.265625 -1.421875 13.375 4.4375 \n\rQ 8.5 10.296875 8.5 21.578125 \n\rM 31.109375 56 \n\rz\n\r\" id=\"DejaVuSans-75\"/>\n\r      <path d=\"M 48.6875 27.296875 \n\rQ 48.6875 37.203125 44.609375 42.84375 \n\rQ 40.53125 48.484375 33.40625 48.484375 \n\rQ 26.265625 48.484375 22.1875 42.84375 \n\rQ 18.109375 37.203125 18.109375 27.296875 \n\rQ 18.109375 17.390625 22.1875 11.75 \n\rQ 26.265625 6.109375 33.40625 6.109375 \n\rQ 40.53125 6.109375 44.609375 11.75 \n\rQ 48.6875 17.390625 48.6875 27.296875 \n\rM 18.109375 46.390625 \n\rQ 20.953125 51.265625 25.265625 53.625 \n\rQ 29.59375 56 35.59375 56 \n\rQ 45.5625 56 51.78125 48.09375 \n\rQ 58.015625 40.1875 58.015625 27.296875 \n\rQ 58.015625 14.40625 51.78125 6.484375 \n\rQ 45.5625 -1.421875 35.59375 -1.421875 \n\rQ 29.59375 -1.421875 25.265625 0.953125 \n\rQ 20.953125 3.328125 18.109375 8.203125 \n\rL 18.109375 0 \n\rL 9.078125 0 \n\rL 9.078125 75.984375 \n\rL 18.109375 75.984375 \n\rz\n\r\" id=\"DejaVuSans-62\"/>\n\r      <path d=\"M 41.109375 46.296875 \n\rQ 39.59375 47.171875 37.8125 47.578125 \n\rQ 36.03125 48 33.890625 48 \n\rQ 26.265625 48 22.1875 43.046875 \n\rQ 18.109375 38.09375 18.109375 28.8125 \n\rL 18.109375 0 \n\rL 9.078125 0 \n\rL 9.078125 54.6875 \n\rL 18.109375 54.6875 \n\rL 18.109375 46.1875 \n\rQ 20.953125 51.171875 25.484375 53.578125 \n\rQ 30.03125 56 36.53125 56 \n\rQ 37.453125 56 38.578125 55.875 \n\rQ 39.703125 55.765625 41.0625 55.515625 \n\rz\n\r\" id=\"DejaVuSans-72\"/>\n\r     </defs>\n\r     <g transform=\"translate(28.617187 211.84675)rotate(-90)scale(0.1 -0.1)\">\n\r      <use xlink:href=\"#DejaVuSans-73\"/>\n\r      <use x=\"52.099609\" xlink:href=\"#DejaVuSans-6f\"/>\n\r      <use x=\"113.28125\" xlink:href=\"#DejaVuSans-6d\"/>\n\r      <use x=\"210.693359\" xlink:href=\"#DejaVuSans-65\"/>\n\r      <use x=\"272.216797\" xlink:href=\"#DejaVuSans-20\"/>\n\r      <use x=\"304.003906\" xlink:href=\"#DejaVuSans-6e\"/>\n\r      <use x=\"367.382812\" xlink:href=\"#DejaVuSans-75\"/>\n\r      <use x=\"430.761719\" xlink:href=\"#DejaVuSans-6d\"/>\n\r      <use x=\"528.173828\" xlink:href=\"#DejaVuSans-62\"/>\n\r      <use x=\"591.650391\" xlink:href=\"#DejaVuSans-65\"/>\n\r      <use x=\"653.173828\" xlink:href=\"#DejaVuSans-72\"/>\n\r      <use x=\"694.287109\" xlink:href=\"#DejaVuSans-73\"/>\n\r     </g>\n\r    </g>\n\r   </g>\n\r   <g id=\"line2d_15\">\n\r    <path clip-path=\"url(#pf028bab773)\" d=\"M 73.832727 295.488 \n\rL 182.050909 214.848 \n\rL 290.269091 134.208 \n\rL 398.487273 53.568 \n\r\" style=\"fill:none;stroke:#1f77b4;stroke-linecap:square;stroke-width:1.5;\"/>\n\r   </g>\n\r   <g id=\"patch_3\">\n\r    <path d=\"M 57.6 307.584 \n\rL 57.6 41.472 \n\r\" style=\"fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;\"/>\n\r   </g>\n\r   <g id=\"patch_4\">\n\r    <path d=\"M 414.72 307.584 \n\rL 414.72 41.472 \n\r\" style=\"fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;\"/>\n\r   </g>\n\r   <g id=\"patch_5\">\n\r    <path d=\"M 57.6 307.584 \n\rL 414.72 307.584 \n\r\" style=\"fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;\"/>\n\r   </g>\n\r   <g id=\"patch_6\">\n\r    <path d=\"M 57.6 41.472 \n\rL 414.72 41.472 \n\r\" style=\"fill:none;stroke:#000000;stroke-linecap:square;stroke-linejoin:miter;stroke-width:0.8;\"/>\n\r   </g>\n\r  </g>\n\r </g>\n\r <defs>\n\r  <clipPath id=\"pf028bab773\">\n\r   <rect height=\"266.112\" width=\"357.12\" x=\"57.6\" y=\"41.472\"/>\n\r  </clipPath>\n\r </defs>\n\r</svg>\n\r<div>"
+      },
+      "dateCreated": "2016-12-25T08:16:59+0000",
+      "dateStarted": "2016-12-29T08:59:01+0000",
+      "dateFinished": "2016-12-29T08:59:02+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:227"
+    },
+    {
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1483063414094_992698390",
+      "id": "20161230-020334_1018423517",
+      "dateCreated": "2016-12-30T02:03:34+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "focus": true,
+      "$$hashKey": "object:1143",
+      "text": "val dataAsArray = data.sample(false, 0.000001).map(_.toArray)\ndataAsArray.toDF().show(false)\n\nval numCols = dataAsArray.first().length \nval sums = dataAsArray.reduce(\n(a,b) => a.zip(b).map(t => t._1 + t._2))\n\n/*val sumOfSqrs = dataAsArray.fold(new Array[Double](1))(\n(a,b) => a.zip(b).map(t => t._1 + t._2 * t._2))\n*/\n\nval sumOfSqrs = dataAsArray.fold(new Array[Double](1))(\n(a,b) => a.zip(b).map(t => t._1 + t._2 * t._2))\n",
+      "dateUpdated": "2016-12-30T05:44:29+0000",
+      "dateFinished": "2016-12-30T05:44:04+0000",
+      "dateStarted": "2016-12-30T05:44:03+0000",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "dataAsArray: org.apache.spark.rdd.RDD[Array[Double]] = MapPartitionsRDD[2631] at map at <console>:41\n+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+\n|value                                                                                                                                                                                                    |\n+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+\n|[0.0, 243.0, 848.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 16.0, 16.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 255.0, 255.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] |\n|[0.0, 215.0, 2571.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 8.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.38, 1.0, 255.0, 1.0, 0.0, 1.0, 0.04, 0.0, 0.0, 0.0, 0.01] |\n|[0.0, 1032.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 510.0, 510.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 255.0, 255.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]|\n|[0.0, 1032.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 511.0, 511.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 255.0, 255.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]|\n|[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 124.0, 5.0, 1.0, 1.0, 0.0, 0.0, 0.04, 0.06, 0.0, 255.0, 5.0, 0.02, 0.07, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0]   |\n|[0.0, 520.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 481.0, 481.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 255.0, 255.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0] |\n|[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 295.0, 19.0, 0.0, 0.0, 1.0, 1.0, 0.06, 0.06, 0.0, 255.0, 19.0, 0.07, 0.07, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0] |\n+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+\n\nnumCols: Int = 38\nsums: Array[Double] = Array(0.0, 3042.0, 3419.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1938.0, 1550.0, 1.0, 1.0, 1.0, 1.0, 5.1, 0.12, 0.38, 1531.0, 1299.0, 5.09, 0.14, 4.0, 0.04, 1.0, 1.0, 1.0, 1.01)\nsumOfSqrs: Array[Double] = Array(0.0)\n"
+      }
+    },
+    {
+      "text": "// Computing standard deviation:\n// e.g.\nval data = Array(2, 4, 4, 4, 5, 5, 7, 9)\nval n = values.length + 1\nval avg = data.sum/n\nval newdata = data.map{d =>\n    val temp = d-avg\n    temp*temp\n}\nval std = math.sqrt(newdata.sum/n)\n\n// Using the properties of the expected value\n// std = sqrt(E[X^2] - E[X]^2)\nval meanOfSqrs = data.map(x => x*x).sum/n\nval sqrOfSums = data.foldLeft(0.0)(_ + _)/n\nval std1 = math.sqrt(meanOfSqrs - (sqrOfSums*sqrOfSums))\n\n",
+      "dateUpdated": "2016-12-30T04:57:07+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1483002659510_412360244",
+      "id": "20161229-091059_407731982",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "data: Array[Int] = Array(2, 4, 4, 4, 5, 5, 7, 9)\nn: Int = 8\navg: Int = 5\nnewdata: Array[Int] = Array(9, 1, 1, 1, 0, 0, 4, 16)\nstd: Double = 2.0\nmeanOfSqrs: Int = 29\nsqrOfSums: Double = 5.0\nstd1: Double = 2.0\n"
+      },
+      "dateCreated": "2016-12-29T09:10:59+0000",
+      "dateStarted": "2016-12-30T04:57:07+0000",
+      "dateFinished": "2016-12-30T04:57:08+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:228",
+      "focus": true
+    },
+    {
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1483007131161_-1089846494",
+      "id": "20161229-102531_1441604609",
+      "dateCreated": "2016-12-29T10:25:31+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:229",
+      "dateUpdated": "2016-12-30T05:19:41+0000",
+      "dateFinished": "2016-12-30T05:19:25+0000",
+      "dateStarted": "2016-12-30T05:19:24+0000",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "numbers: List[Int] = List(5, 4, 8, 6, 2)\nres267: Double = 145.0\n"
+      },
+      "text": "val numbers = List(5, 4, 8, 6, 2)\nnumbers.foldLeft(0.0) {(a,b) => a + Math.pow(b, 2)}",
+      "focus": true
+    },
+    {
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1483074627534_-368666253",
+      "id": "20161230-051027_877033167",
+      "dateCreated": "2016-12-30T05:10:27+0000",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500,
+      "focus": true,
+      "$$hashKey": "object:2402"
+    }
+  ],
+  "name": "AnomalyDetection",
+  "id": "2C61B55N3",
+  "angularObjects": {
+    "2BRWU4WXC:shared_process": [],
+    "2AM1YV5CU:shared_process": [],
+    "2AJXGMUUJ:shared_process": [],
+    "2ANGGHHMQ:shared_process": [],
+    "2AKK3QQXU:shared_process": []
+  },
+  "config": {
+    "looknfeel": "default"
+  },
+  "info": {}
+}
