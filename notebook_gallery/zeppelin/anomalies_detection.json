@@ -33,7 +33,7 @@
       "dateFinished": "2016-12-29T11:09:30+0000",
       "status": "FINISHED",
       "progressUpdateIntervalMs": 500,
-      "$$hashKey": "object:217"
+      "$$hashKey": "object:5795"
     },
     {
       "text": "// Take a peek at the dataset\nrawData.toDF().show(2, false)",
@@ -68,7 +68,7 @@
       "dateFinished": "2016-12-29T11:09:46+0000",
       "status": "FINISHED",
       "progressUpdateIntervalMs": 500,
-      "$$hashKey": "object:218"
+      "$$hashKey": "object:5796"
     },
     {
       "text": "// Explore the data briefly, and check on the number of distinct labels.\n// There are 23 distinct labels with the most frequent one being on the top as we sorted the same in a reverse order\nval numberOfDistinctLabels = rawData.map(_.split(',').last).countByValue().toSeq.sortBy(_._2).reverse\nval labelsAsDf = numberOfDistinctLabels.toDF.selectExpr(\"_1 as Label\", \"_2 as Frequency\")\nlabelsAsDf.show(false)\n",
@@ -103,7 +103,7 @@
       "dateFinished": "2016-12-29T11:09:55+0000",
       "status": "FINISHED",
       "progressUpdateIntervalMs": 500,
-      "$$hashKey": "object:219"
+      "$$hashKey": "object:5797"
     },
     {
       "text": "val labelsAndData = rawData.map { line =>\r    val buffer = line.split(',').toBuffer;\r    buffer.remove(1, 3);\r    val label = buffer.remove(buffer.length-1);\r    val vector = Vectors.dense(buffer.map(_.toDouble).toArray);\r    (label,vector)\r};\rlabelsAndData.sample(false, 0.05).toDF().show(false)",
@@ -119,7 +119,8 @@
           "groups": [],
           "scatter": {}
         },
-        "enabled": true
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
       },
       "settings": {
         "params": {},
@@ -137,8 +138,7 @@
       "dateFinished": "2016-12-30T02:06:36+0000",
       "status": "FINISHED",
       "progressUpdateIntervalMs": 500,
-      "$$hashKey": "object:220",
-      "focus": true
+      "$$hashKey": "object:5798"
     },
     {
       "text": "val data = labelsAndData.values.cache()\nval kmeans = new KMeans()\nval model = kmeans.setSeed(0).setRuns(10).run(data) \nmodel.clusterCenters.foreach(println)\n\nval clusterLabelCount = labelsAndData.map {case (label,datum) => \n    val cluster = model.predict(datum)\n    (cluster,label)\n}.countByValue\n\n\n// Sort by the number of occurrences of the label\nclusterLabelCount.toSeq.sortWith(_._2 > _._2).foreach { \n    case ((cluster,label),count) =>\n    println(f\"$cluster%1s$label%18s$count%8s\")\n}",
@@ -154,7 +154,8 @@
           "groups": [],
           "scatter": {}
         },
-        "enabled": true
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
       },
       "settings": {
         "params": {},
@@ -172,8 +173,7 @@
       "dateFinished": "2016-12-30T05:00:29+0000",
       "status": "FINISHED",
       "progressUpdateIntervalMs": 500,
-      "$$hashKey": "object:221",
-      "focus": true
+      "$$hashKey": "object:5799"
     },
     {
       "text": "def distance(a: Vector, b: Vector): Double = math.sqrt(a.toArray.zip(b.toArray).map(p => p._1 - p._2).map(d => d * d).sum)\n\ndef distToCentroid(datum: Vector, model: KMeansModel):Double = {\n    val cluster = model.predict(datum)\n    val centroid = model.clusterCenters(cluster) \n    distance(centroid, datum)\n}\n",
@@ -189,7 +189,8 @@
           "groups": [],
           "scatter": {}
         },
-        "enabled": true
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
       },
       "settings": {
         "params": {},
@@ -207,7 +208,7 @@
       "dateFinished": "2016-12-29T11:11:43+0000",
       "status": "FINISHED",
       "progressUpdateIntervalMs": 500,
-      "$$hashKey": "object:222"
+      "$$hashKey": "object:5800"
     },
     {
       "text": "def clusteringScore(data: RDD[Vector], k: Int) = { \r    val kmeans = new KMeans();\r    val model = kmeans.setSeed(0).setRuns(20).setK(k).run(data);\r    (model, data.map(datum => distToCentroid(datum, model)).mean());\r}",
@@ -223,7 +224,8 @@
           "groups": [],
           "scatter": {}
         },
-        "enabled": true
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
       },
       "settings": {
         "params": {},
@@ -241,7 +243,7 @@
       "dateFinished": "2016-12-29T11:11:44+0000",
       "status": "FINISHED",
       "progressUpdateIntervalMs": 500,
-      "$$hashKey": "object:223"
+      "$$hashKey": "object:5801"
     },
     {
       "text": "// Try range a of cluster sizes\n// It is not necessary for K-means to return the optimal solution,\n// The convergence starts from a random point to a local minimum which may or may not be the global minimum.\n(10 to 100 by 10).map(k => (k, clusteringScore(data, k))).\n    foreach(println)",
@@ -276,7 +278,7 @@
       "dateFinished": "2016-12-29T11:39:18+0000",
       "status": "FINISHED",
       "progressUpdateIntervalMs": 500,
-      "$$hashKey": "object:224"
+      "$$hashKey": "object:5802"
     },
     {
       "text": "def save(inputDf:DataFrame, outDirPath:String): Unit = {\n    // Persist the table to disk for future use\n    inputDf.repartition(1).write.mode(\"append\").\n                    format(\"com.databricks.spark.csv\").option(\"header\", \"true\").\n                    save(outDirPath)\n}",
@@ -311,7 +313,7 @@
       "dateFinished": "2016-12-25T07:40:58+0000",
       "status": "FINISHED",
       "progressUpdateIntervalMs": 500,
-      "$$hashKey": "object:225"
+      "$$hashKey": "object:5803"
     },
     {
       "text": "val finalModel = clusteringScore(data, 100)._1;\rval sample = data.map(datum =>\rfinalModel.predict(datum) + \":\" + datum.toArray.mkString(\",\"));\rsave(sample.sample(false, 0.05).toDF(), \"s3a://ds-etl/data/\")",
@@ -346,7 +348,7 @@
       "dateFinished": "2016-12-25T08:13:51+0000",
       "status": "FINISHED",
       "progressUpdateIntervalMs": 500,
-      "$$hashKey": "object:226"
+      "$$hashKey": "object:5804"
     },
     {
       "text": "%python\nimport matplotlib\nmatplotlib.use('Agg')\nimport matplotlib.pyplot as plt\nplt.figure()\nplt.plot([1,2,3,4])\nplt.ylabel('some numbers')\nz.show(plt, width='500px')\nplt.close()",
@@ -362,7 +364,8 @@
           "groups": [],
           "scatter": {}
         },
-        "enabled": true
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
       },
       "settings": {
         "params": {},
@@ -380,9 +383,11 @@
       "dateFinished": "2016-12-29T08:59:02+0000",
       "status": "FINISHED",
       "progressUpdateIntervalMs": 500,
-      "$$hashKey": "object:227"
+      "$$hashKey": "object:5805"
     },
     {
+      "text": "val dataAsArray = data.sample(false, 0.000001).map(_.toArray)\ndataAsArray.toDF().show(false)\n\nval numCols = dataAsArray.first().length \nval sums = dataAsArray.reduce(\n(a,b) => a.zip(b).map(t => t._1 + t._2))\n\n/*val sumOfSqrs = dataAsArray.fold(new Array[Double](1))(\n(a,b) => a.zip(b).map(t => t._1 + t._2 * t._2))\n*/\n\nval sumOfSqrs = dataAsArray.fold(new Array[Double](1))(\n(a,b) => a.zip(b).map(t => t._1 + t._2 * t._2))\n",
+      "dateUpdated": "2016-12-30T05:44:29+0000",
       "config": {
         "colWidth": 12,
         "graph": {
@@ -403,20 +408,17 @@
       },
       "jobName": "paragraph_1483063414094_992698390",
       "id": "20161230-020334_1018423517",
-      "dateCreated": "2016-12-30T02:03:34+0000",
-      "status": "FINISHED",
-      "progressUpdateIntervalMs": 500,
-      "focus": true,
-      "$$hashKey": "object:1143",
-      "text": "val dataAsArray = data.sample(false, 0.000001).map(_.toArray)\ndataAsArray.toDF().show(false)\n\nval numCols = dataAsArray.first().length \nval sums = dataAsArray.reduce(\n(a,b) => a.zip(b).map(t => t._1 + t._2))\n\n/*val sumOfSqrs = dataAsArray.fold(new Array[Double](1))(\n(a,b) => a.zip(b).map(t => t._1 + t._2 * t._2))\n*/\n\nval sumOfSqrs = dataAsArray.fold(new Array[Double](1))(\n(a,b) => a.zip(b).map(t => t._1 + t._2 * t._2))\n",
-      "dateUpdated": "2016-12-30T05:44:29+0000",
-      "dateFinished": "2016-12-30T05:44:04+0000",
-      "dateStarted": "2016-12-30T05:44:03+0000",
       "result": {
         "code": "SUCCESS",
         "type": "TEXT",
         "msg": "dataAsArray: org.apache.spark.rdd.RDD[Array[Double]] = MapPartitionsRDD[2631] at map at <console>:41\n+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+\n|value                                                                                                                                                                                                    |\n+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+\n|[0.0, 243.0, 848.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 16.0, 16.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 255.0, 255.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] |\n|[0.0, 215.0, 2571.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 8.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.38, 1.0, 255.0, 1.0, 0.0, 1.0, 0.04, 0.0, 0.0, 0.0, 0.01] |\n|[0.0, 1032.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 510.0, 510.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 255.0, 255.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]|\n|[0.0, 1032.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 511.0, 511.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 255.0, 255.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]|\n|[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 124.0, 5.0, 1.0, 1.0, 0.0, 0.0, 0.04, 0.06, 0.0, 255.0, 5.0, 0.02, 0.07, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0]   |\n|[0.0, 520.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 481.0, 481.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 255.0, 255.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0] |\n|[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 295.0, 19.0, 0.0, 0.0, 1.0, 1.0, 0.06, 0.06, 0.0, 255.0, 19.0, 0.07, 0.07, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0] |\n+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+\n\nnumCols: Int = 38\nsums: Array[Double] = Array(0.0, 3042.0, 3419.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1938.0, 1550.0, 1.0, 1.0, 1.0, 1.0, 5.1, 0.12, 0.38, 1531.0, 1299.0, 5.09, 0.14, 4.0, 0.04, 1.0, 1.0, 1.0, 1.01)\nsumOfSqrs: Array[Double] = Array(0.0)\n"
-      }
+      },
+      "dateCreated": "2016-12-30T02:03:34+0000",
+      "dateStarted": "2016-12-30T05:44:03+0000",
+      "dateFinished": "2016-12-30T05:44:04+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:5806"
     },
     {
       "text": "// Computing standard deviation:\n// e.g.\nval data = Array(2, 4, 4, 4, 5, 5, 7, 9)\nval n = values.length + 1\nval avg = data.sum/n\nval newdata = data.map{d =>\n    val temp = d-avg\n    temp*temp\n}\nval std = math.sqrt(newdata.sum/n)\n\n// Using the properties of the expected value\n// std = sqrt(E[X^2] - E[X]^2)\nval meanOfSqrs = data.map(x => x*x).sum/n\nval sqrOfSums = data.foldLeft(0.0)(_ + _)/n\nval std1 = math.sqrt(meanOfSqrs - (sqrOfSums*sqrOfSums))\n\n",
@@ -451,10 +453,11 @@
       "dateFinished": "2016-12-30T04:57:08+0000",
       "status": "FINISHED",
       "progressUpdateIntervalMs": 500,
-      "$$hashKey": "object:228",
-      "focus": true
+      "$$hashKey": "object:5807"
     },
     {
+      "text": "val numbers = List(5, 4, 8, 6, 2)\nnumbers.foldLeft(0.0) {(a,b) => a + Math.pow(b, 2)}",
+      "dateUpdated": "2016-12-30T05:19:41+0000",
       "config": {
         "colWidth": 12,
         "graph": {
@@ -466,7 +469,8 @@
           "groups": [],
           "scatter": {}
         },
-        "enabled": true
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
       },
       "settings": {
         "params": {},
@@ -474,20 +478,17 @@
       },
       "jobName": "paragraph_1483007131161_-1089846494",
       "id": "20161229-102531_1441604609",
-      "dateCreated": "2016-12-29T10:25:31+0000",
-      "status": "FINISHED",
-      "progressUpdateIntervalMs": 500,
-      "$$hashKey": "object:229",
-      "dateUpdated": "2016-12-30T05:19:41+0000",
-      "dateFinished": "2016-12-30T05:19:25+0000",
-      "dateStarted": "2016-12-30T05:19:24+0000",
       "result": {
         "code": "SUCCESS",
         "type": "TEXT",
         "msg": "numbers: List[Int] = List(5, 4, 8, 6, 2)\nres267: Double = 145.0\n"
       },
-      "text": "val numbers = List(5, 4, 8, 6, 2)\nnumbers.foldLeft(0.0) {(a,b) => a + Math.pow(b, 2)}",
-      "focus": true
+      "dateCreated": "2016-12-29T10:25:31+0000",
+      "dateStarted": "2016-12-30T05:19:24+0000",
+      "dateFinished": "2016-12-30T05:19:25+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:5808"
     },
     {
       "config": {
@@ -501,7 +502,8 @@
           "groups": [],
           "scatter": {}
         },
-        "enabled": true
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
       },
       "settings": {
         "params": {},
@@ -512,8 +514,7 @@
       "dateCreated": "2016-12-30T05:10:27+0000",
       "status": "READY",
       "progressUpdateIntervalMs": 500,
-      "focus": true,
-      "$$hashKey": "object:2402"
+      "$$hashKey": "object:5809"
     }
   ],
   "name": "AnomalyDetection",
