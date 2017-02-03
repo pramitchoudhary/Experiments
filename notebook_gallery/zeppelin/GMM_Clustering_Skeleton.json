@@ -1,0 +1,147 @@
+{
+  "paragraphs": [
+    {
+      "text": "sc",
+      "dateUpdated": "2016-10-11T07:54:35+0000",
+      "config": {
+        "colWidth": 12,
+        "editorMode": "ace/mode/scala",
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476215675771_258677574",
+      "id": "20160912-062434_1661640828",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "res0: org.apache.spark.SparkContext = org.apache.spark.SparkContext@4c0451e2\n"
+      },
+      "dateCreated": "2016-10-11T07:54:35+0000",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:4721"
+    },
+    {
+      "text": "import org.apache.spark.ml.clustering.GaussianMixture\n\n// Loads data file locally on the EMR box @/home/hadoop\nval dataset = spark.read.format(\"libsvm\").load(\"s3://ds-etl/sample_kmeans_data.txt\")\ndataset.show()\ndataset.select(\"features\").show()\n// Trains Gaussian Mixture Model\nval gmm = new GaussianMixture()\n  .setK(2)\nval model = gmm.fit(dataset)\nval res = model.transform(dataset)\nres.select(\"probability\").show(false)\n\n// output parameters of mixture model model\nfor (i <- 0 until model.getK) {\n  println(\"weight=%f\\nmu=%s\\nsigma=\\n%s\\nprobability=%s\\n\" format\n    (model.weights(i), model.gaussians(i).mean, model.gaussians(i).cov))\n}",
+      "dateUpdated": "2016-10-11T07:54:35+0000",
+      "config": {
+        "colWidth": 12,
+        "editorMode": "ace/mode/scala",
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476215675771_258677574",
+      "id": "20160912-062914_1790617273",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "import org.apache.spark.ml.clustering.GaussianMixture\ndataset: org.apache.spark.sql.DataFrame = [label: double, features: vector]\n+-----+--------------------+\n|label|            features|\n+-----+--------------------+\n|  0.0|           (3,[],[])|\n|  1.0|(3,[0,1,2],[0.1,0...|\n|  2.0|(3,[0,1,2],[0.2,0...|\n|  3.0|(3,[0,1,2],[9.0,9...|\n|  4.0|(3,[0,1,2],[9.1,9...|\n|  5.0|(3,[0,1,2],[9.2,9...|\n+-----+--------------------+\n\n+--------------------+\n|            features|\n+--------------------+\n|           (3,[],[])|\n|(3,[0,1,2],[0.1,0...|\n|(3,[0,1,2],[0.2,0...|\n|(3,[0,1,2],[9.0,9...|\n|(3,[0,1,2],[9.1,9...|\n|(3,[0,1,2],[9.2,9...|\n+--------------------+\n\ngmm: org.apache.spark.ml.clustering.GaussianMixture = GaussianMixture_e80fe6335371\nmodel: org.apache.spark.ml.clustering.GaussianMixtureModel = GaussianMixture_e80fe6335371\nres: org.apache.spark.sql.DataFrame = [label: double, features: vector ... 2 more fields]\n+-------------------------------------------+\n|probability                                |\n+-------------------------------------------+\n|[0.9999999999999979,2.093996169658831E-15] |\n|[0.999999999999999,9.891337521299582E-16]  |\n|[0.9999999999999979,2.0939961696578572E-15]|\n|[2.093996169659668E-15,0.9999999999999979] |\n|[9.89133752128275E-16,0.999999999999999]   |\n|[2.0939961696605603E-15,0.9999999999999979]|\n+-------------------------------------------+\n\nweight=0.500000\nmu=[0.10000000000001552,0.10000000000001552,0.10000000000001552]\nsigma=\n0.006666666666806455  0.006666666666806455  0.006666666666806455  \n0.006666666666806455  0.006666666666806455  0.006666666666806455  \n0.006666666666806455  0.006666666666806455  0.006666666666806455  \nprobability=probability\n\nweight=0.500000\nmu=[9.099999999999985,9.099999999999985,9.099999999999985]\nsigma=\n0.006666666666783764  0.006666666666783764  0.006666666666783764  \n0.006666666666783764  0.006666666666783764  0.006666666666783764  \n0.006666666666783764  0.006666666666783764  0.006666666666783764  \nprobability=probability\n\n"
+      },
+      "dateCreated": "2016-10-11T07:54:35+0000",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:4722"
+    },
+    {
+      "text": "model",
+      "dateUpdated": "2016-10-11T07:54:35+0000",
+      "config": {
+        "colWidth": 12,
+        "editorMode": "ace/mode/scala",
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476215675771_258677574",
+      "id": "20160912-175541_1076281141",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "res5: org.apache.spark.ml.clustering.GaussianMixtureModel = GaussianMixture_be5699388abc\n"
+      },
+      "dateCreated": "2016-10-11T07:54:35+0000",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:4723"
+    },
+    {
+      "dateUpdated": "2016-10-11T07:54:35+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476215675772_256753829",
+      "id": "20160912-181228_22846215",
+      "dateCreated": "2016-10-11T07:54:35+0000",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:4724"
+    }
+  ],
+  "name": "GMM_Clustering_Skeleton",
+  "id": "2BZFFEX12",
+  "angularObjects": {
+    "2BRWU4WXC:shared_process": [],
+    "2AM1YV5CU:shared_process": [],
+    "2AJXGMUUJ:shared_process": [],
+    "2ANGGHHMQ:shared_process": [],
+    "2AKK3QQXU:shared_process": []
+  },
+  "config": {
+    "looknfeel": "default"
+  },
+  "info": {}
+}

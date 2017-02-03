@@ -1,0 +1,113 @@
+{
+  "paragraphs": [
+    {
+      "text": "import org.apache.spark.mllib.linalg.Matrix\nimport org.apache.spark.mllib.linalg.SingularValueDecomposition\nimport org.apache.spark.mllib.linalg.Vector\nimport org.apache.spark.mllib.linalg.Vectors\nimport org.apache.spark.mllib.linalg.distributed.RowMatrix\n\nval data = Array(\n  Vectors.dense(1.0, 0.0, 1.0, 0.0, 1.0),\n  Vectors.dense(0.0, 0.0, 1.0, 1.0, 1.0),\n  Vectors.dense(1.0, 0.0, 1.0, 0.0, 1.0))\n\nval dataRDD = sc.parallelize(data, 2)\n\nval mat: RowMatrix = new RowMatrix(dataRDD)\n\n// Compute the top 5 singular values and corresponding singular vectors.\nval svd: SingularValueDecomposition[RowMatrix, Matrix] = mat.computeSVD(3, computeU = true)\nval U: RowMatrix = svd.U  // The U factor is a RowMatrix.\nval s: Vector = svd.s  // The singular values are stored in a local dense vector.\nval V: Matrix = svd.V  // The V factor is a local dense matrix.\n\nval collect = U.rows.collect()\nprintln(\"U factor is:\")\ncollect.foreach { vector => println(vector) }\nprintln(s\"Singular values are: $s\")\nprintln(s\"V factor is:\\n$V\")",
+      "dateUpdated": "2016-10-14T10:31:54+0000",
+      "config": {
+        "colWidth": 12,
+        "editorMode": "ace/mode/scala",
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476484314436_-1807612276",
+      "id": "20160920-224547_1877660885",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "import org.apache.spark.mllib.linalg.Matrix\nimport org.apache.spark.mllib.linalg.SingularValueDecomposition\nimport org.apache.spark.mllib.linalg.Vector\nimport org.apache.spark.mllib.linalg.Vectors\nimport org.apache.spark.mllib.linalg.distributed.RowMatrix\ndata: Array[org.apache.spark.mllib.linalg.Vector] = Array([1.0,0.0,1.0,0.0,1.0], [0.0,0.0,1.0,1.0,1.0], [1.0,0.0,1.0,0.0,1.0])\ndataRDD: org.apache.spark.rdd.RDD[org.apache.spark.mllib.linalg.Vector] = ParallelCollectionRDD[28] at parallelize at <console>:74\nmat: org.apache.spark.mllib.linalg.distributed.RowMatrix = org.apache.spark.mllib.linalg.distributed.RowMatrix@33f55b50\nsvd: org.apache.spark.mllib.linalg.SingularValueDecomposition[org.apache.spark.mllib.linalg.distributed.RowMatrix,org.apache.spark.mllib.linalg.Matrix] =\nSingularValueDecomposition(org.apache.spark.mllib.linalg.distributed.RowMatrix@286d2dd9,[2.77516884508248,1.1394901848123025,1.5060797869497333E-8],-0.43666734097934967  0.6397824890711091      -0.601757124001648\n0.0                   1.1102230246251565E-16  -0.3077676222138436\n-0.6224214924521221   -0.1122117896375987     0.30087856200082386\n-0.18575415147277238  -0.7519942787087078     -0.6017571240016479\n-0.6224214924521221   -0.1122117896375987     0.3008785620008241   )\nU: org.apache.spark.mllib.linalg.distributed.RowMatrix = org.apache.spark.mllib.linalg.distributed.RowMatrix@286d2dd9\ns: org.apache.spark.mllib.linalg.Vector = [2.77516884508248,1.1394901848123025,1.5060797869497333E-8]\nV: org.apache.spark.mllib.linalg.Matrix =\n-0.43666734097934967  0.6397824890711091      -0.601757124001648\n0.0                   1.1102230246251565E-16  -0.3077676222138436\n-0.6224214924521221   -0.1122117896375987     0.30087856200082386\n-0.18575415147277238  -0.7519942787087078     -0.6017571240016479\n-0.6224214924521221   -0.1122117896375987     0.3008785620008241\ncollect: Array[org.apache.spark.mllib.linalg.Vector] = Array([-0.6059128001754496,0.3645129333556566,-7.450580596923828E-9], [-0.5154991340119697,-0.8568900996235799,0.0], [-0.6059128001754496,0.3645129333556566,-7.450580596923828E-9])\nU factor is:\n[-0.6059128001754496,0.3645129333556566,-7.450580596923828E-9]\n[-0.5154991340119697,-0.8568900996235799,0.0]\n[-0.6059128001754496,0.3645129333556566,-7.450580596923828E-9]\nSingular values are: [2.77516884508248,1.1394901848123025,1.5060797869497333E-8]\nV factor is:\n-0.43666734097934967  0.6397824890711091      -0.601757124001648   \n0.0                   1.1102230246251565E-16  -0.3077676222138436  \n-0.6224214924521221   -0.1122117896375987     0.30087856200082386  \n-0.18575415147277238  -0.7519942787087078     -0.6017571240016479  \n-0.6224214924521221   -0.1122117896375987     0.3008785620008241   \n"
+      },
+      "dateCreated": "2016-10-14T10:31:54+0000",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:5119"
+    },
+    {
+      "text": "import org.apache.spark.mllib.linalg.Matrix\nimport org.apache.spark.mllib.linalg.Vectors\nimport org.apache.spark.mllib.linalg.distributed.RowMatrix\n\nval data =  Array(\n  Vectors.dense(1.0, 0.0, 1.0, 0.0, 1.0),\n  Vectors.dense(0.0, 0.0, 1.0, 1.0, 1.0),\n  Vectors.dense(1.0, 0.0, 1.0, 0.0, 1.0))\n\nval dataRDD = sc.parallelize(data, 2)\n\nval mat: RowMatrix = new RowMatrix(dataRDD)\n\n// Compute the top 4 principal components.\n// Principal components are stored in a local dense matrix.\nval pc: Matrix = mat.computePrincipalComponents(2)\n\n// Project the rows to the linear space spanned by the top 4 principal components.\nval projected: RowMatrix = mat.multiply(pc)\n\nval collect = projected.rows.collect()\n\nprintln(\"Projected Row Matrix of principal component:\")\ncollect.foreach { vector => println(vector) }",
+      "dateUpdated": "2016-10-14T10:31:54+0000",
+      "config": {
+        "colWidth": 12,
+        "editorMode": "ace/mode/scala",
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476484314437_-1807997025",
+      "id": "20160920-225134_2101290938",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "import org.apache.spark.mllib.linalg.Matrix\nimport org.apache.spark.mllib.linalg.Vectors\nimport org.apache.spark.mllib.linalg.distributed.RowMatrix\ndata: Array[org.apache.spark.mllib.linalg.Vector] = Array([1.0,0.0,1.0,0.0,1.0], [0.0,0.0,1.0,1.0,1.0], [1.0,0.0,1.0,0.0,1.0])\ndataRDD: org.apache.spark.rdd.RDD[org.apache.spark.mllib.linalg.Vector] = ParallelCollectionRDD[35] at parallelize at <console>:80\nmat: org.apache.spark.mllib.linalg.distributed.RowMatrix = org.apache.spark.mllib.linalg.distributed.RowMatrix@25d9158e\npc: org.apache.spark.mllib.linalg.Matrix =\n-0.7071067811865479  0.7071067811865477\n0.0                  0.0\n0.0                  0.0\n0.7071067811865478   0.7071067811865477\n0.0                  0.0\nprojected: org.apache.spark.mllib.linalg.distributed.RowMatrix = org.apache.spark.mllib.linalg.distributed.RowMatrix@384de3f6\ncollect: Array[org.apache.spark.mllib.linalg.Vector] = Array([-0.7071067811865479,0.7071067811865477], [0.7071067811865478,0.7071067811865477], [-0.7071067811865479,0.7071067811865477])\nProjected Row Matrix of principal component:\n[-0.7071067811865479,0.7071067811865477]\n[0.7071067811865478,0.7071067811865477]\n[-0.7071067811865479,0.7071067811865477]\n"
+      },
+      "dateCreated": "2016-10-14T10:31:54+0000",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:5120"
+    },
+    {
+      "dateUpdated": "2016-10-14T10:31:54+0000",
+      "config": {
+        "colWidth": 12,
+        "editorMode": "ace/mode/scala",
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476484314437_-1807997025",
+      "id": "20160921-005055_995989843",
+      "dateCreated": "2016-10-14T10:31:54+0000",
+      "status": "READY",
+      "errorMessage": "",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:5121"
+    }
+  ],
+  "name": "SVD_PCA",
+  "id": "2BXN7UN7T",
+  "angularObjects": {
+    "2BRWU4WXC:shared_process": [],
+    "2AM1YV5CU:shared_process": [],
+    "2AJXGMUUJ:shared_process": [],
+    "2ANGGHHMQ:shared_process": [],
+    "2AKK3QQXU:shared_process": []
+  },
+  "config": {
+    "looknfeel": "default"
+  },
+  "info": {}
+}
