@@ -6,9 +6,11 @@ mnist = input_data.read_data_sets("/tmp/data/", one_hot = True)
 
 n_classes = 10
 batch_size = 128
+keep_rate = 0.8
 
 x = tf.placeholder('float', [None, 784])
 y = tf.placeholder('float')
+keep_prob = tf.placeholder(tf.float32)
 
 def conv2d(x, W):
     return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
@@ -49,6 +51,10 @@ def convolutional_neural_network_model(data):
     # Reshape conv2 output to fit fully connected layer
     fc = tf.reshape(conv2, [-1, 7*7*64])
     fc = tf.nn.relu(tf.matmul(fc, weights['w_fc']) + biases['b_fc'])
+
+    # dropout
+    fc = tf.nn.dropout(fc, keep_rate)
+
     output = tf.matmul(fc, weights['out']) + biases['out']
     return output
 
