@@ -2,10 +2,13 @@
 # Reference on Optimization: Adam --> https://arxiv.org/abs/1412.6980
 # Reference for hyper-parameter tunining for Deep Architecture: https://arxiv.org/abs/1206.5533
 
+import matplotlib.pyplot as plt
+import numpy as np
 import tensorflow as tf
 # Enable logging ...
 # tf.logging.set_verbosity(tf.logging.INFO)
 from tensorflow.examples.tutorials.mnist import input_data
+
 
 
 import argparse
@@ -34,16 +37,20 @@ def convolutional_neural_network_model(data, no_of_classes, keep_rate):
     'b_fc':tf.Variable(tf.random_normal([1024])),
     'out':tf.Variable(tf.random_normal([no_of_classes]))}
 
+    # Transform image into 28*28 dimension
     x = tf.reshape(data, shape=[-1, 28, 28, 1])
 
+    # First Conv-ReLu-MaxPool Layer
     conv1 = tf.nn.relu(conv2d(x, weights['w_conv1']) + biases['b_conv1'])
     conv1 = maxpool2d(conv1)
 
+    # Second Conv-ReLu-MaxPool Layer
     conv2 = tf.nn.relu(conv2d(conv1, weights['w_conv2']) + biases['b_conv2'])
     conv2 = maxpool2d(conv2)
 
-    fc = tf.reshape(conv2,[-1, 7*7*64])
-    fc = tf.nn.relu(tf.matmul(fc, weights['w_fc'])+biases['b_fc'])
+    fc = tf.reshape(conv2, [-1, 7*7*64])
+    fc = tf.nn.relu(tf.matmul(fc, weights['w_fc']) + biases['b_fc'])
+    # Helps in controling the complexity of the model
     fc = tf.nn.dropout(fc, keep_rate)
 
     output = tf.matmul(fc, weights['out']) + biases['out']
@@ -53,16 +60,19 @@ def convolutional_neural_network_model(data, no_of_classes, keep_rate):
 def train_neural_network(data, x_placeholder, y_placeholder, epochs, no_of_classes, learning_rate, device_type,
                          keep_rate=0.5, batch_size=128):
     with tf.device(device_type):
-        prediction = convolutional_neural_network_model(x_placeholder, no_of_classes, keep_rate)
-        with tf.name_scope('Loss'):
-            cost = tf.reduce_mean( tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y_placeholder) )
+        predictions = convolutional_neural_network_model(x_placeholder, no_of_classes, keep_rate)
+        print("Instance type: {}".format(type(predictions)))
+        print(predictions)
 
-        optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, epsilon=0.1).minimize(cost)
-        tf.summary.scalar("Loss", cost)
+        with tf.name_scope('Loss'):
+            loss_func = tf.reduce_mean( tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=y_placeholder) )
+
+        optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, epsilon=0.1).minimize(loss_func)
+        tf.summary.scalar("Loss", loss_func)
 
         with tf.name_scope('Accuracy'):
             with tf.name_scope('correct_prediction'):
-                correct_prediction = tf.equal(tf.argmax(prediction, 1), tf.argmax(y_placeholder, 1))
+                correct_prediction = tf.equal(tf.argmax(predictions, axis=1), tf.argmax(y_placeholder, axis=1))
             with tf.name_scope('Accuracy'):
                 accuracy = tf.reduce_mean(tf.cast(correct_prediction, 'float'))
         tf.summary.scalar('accuracy', accuracy)
@@ -72,35 +82,73 @@ def train_neural_network(data, x_placeholder, y_placeholder, epochs, no_of_class
 
     # number of iterations
     hm_epochs = epochs
+
     initializer = tf.global_variables_initializer()
 
-    with tf.Session(config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=True)) as sess:
-        sess.run(initializer)
+    sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=True))
+    sess.run(initializer)
 
-        # write logs to Tensorboard
-        summary_writer = tf.summary.FileWriter(logs_path, graph=tf.get_default_graph())
+    # write logs to Tensorboard
+    summary_writer = tf.summary.FileWriter(logs_path, graph=tf.get_default_graph())
 
-        for epoch in range(hm_epochs):
-            epoch_loss = 0
-            for _ in range(int(data.train.num_examples/batch_size)):
-                epoch_x, epoch_y = data.train.next_batch(batch_size)
-                _, c, summary = sess.run([optimizer, cost, merged_summary_op],
-                                         feed_dict={x_placeholder: epoch_x, y_placeholder: epoch_y})
+    for epoch in range(hm_epochs):
+        epoch_loss = 0
+        for _ in range(int(data.train.num_examples/batch_size)):
+            epoch_x, epoch_y = data.train.next_batch(batch_size)
+            train_dict = {x_placeholder: epoch_x, y_placeholder: epoch_y}
+            _, c, summary = sess.run([optimizer, loss_func, merged_summary_op], feed_dict=train_dict)
 
-                # Write log at every iteration
-                summary_writer.add_summary(summary, epoch)
+            # Write log at every iteration
+            summary_writer.add_summary(summary, epoch)
 
-                epoch_loss += c
+            epoch_loss += c
 
-            print('Epoch', epoch, 'completed out of',hm_epochs,'loss:', epoch_loss)
+        print('Epoch', epoch, 'completed out of',hm_epochs,'loss:', epoch_loss)
+
+    # Evaluate accuracy on the test dataset
+    accuracy_metric = accuracy.eval({x_placeholder:data.test.images, y_placeholder:data.test.labels}, session=sess)
+    print('Accuracy on Test set:', accuracy_metric)
+    return (predictions, accuracy_metric, sess)
 
 
-        accuracy_metric = accuracy.eval({x_placeholder:data.test.images, y_placeholder:data.test.labels})
-        print('Accuracy on Test set:', accuracy_metric)
+def predict(input_images, x_buffer, prediction_inst, session_instance):
+    prediction = tf.argmax(prediction_inst, axis=1)
+    values = prediction.eval({x_buffer:input_images}, session=session_instance)
+    print(values)
+    return values
+
+
+# def test_prediction():
+#     return 0
+#
+#
+def display_results(input_data, target_label, session_instance, prediction_inst, x_buffer_placeholder):
+   predicted = predict(input_data, session_instance=session_instance, prediction_inst=prediction_inst,
+                  x_buffer=x_buffer_placeholder)
+   actual = target_label
+   print(predicted)
+   print(acutal)
+   # for i in range(6):
+   #     rand_index = np.random.choice(len(input_data), 1)
+   #     print("Acutal Label:{} ; Predicted Label{}".format(actual[rand_index], predicted[rand_index]))
+    # n_rows = 2
+    # n_cols = 3
+    #
+    #
+    # images = np.squeeze()
+    #
+    # for i in range(6):
+    #     plt.subplot(n_rows, n_cols, i+1)
+    #     plt.imshow(np.reshape(images[i], [28, 28]), cmap='Greys_r')
+    #     plt.title('True Label: ' + str(true_labels[i]) + +' ' + 'Predicted:' + str(predictions[i]), fontsize=10)
+    #     frame = plt.gca()
+    #     frame.axes.get_xaxis().set_visible(False)
+    #     frame.axes.get_yaxis().set_visible(False)
 
 
 def main(args):
-    mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
+    data_dir = "/tmp/data/"
+    mnist = input_data.read_data_sets(data_dir, one_hot=True)
 
     n_classes = 10
     batch_size = 128
@@ -109,12 +157,23 @@ def main(args):
     l_r = args.learning_rate
     device_type = args.device_type
 
-    x_ = tf.placeholder(tf.float32, [None, 784])
-    y_ = tf.placeholder(tf.float32, [None, 10])
+    # place holder for training input
+    x_input = tf.placeholder(tf.float32, [None, 784])
+    y_target = tf.placeholder(tf.float32, [None, 10])
 
+    x_test_input = mnist.test.images
+    y_test_target = mnist.test.labels
 
-    train_neural_network(data=mnist, x_placeholder=x_, y_placeholder=y_, epochs=epochs, no_of_classes=n_classes,
-                         keep_rate=keep_rate, device_type=device_type, batch_size=batch_size, learning_rate=l_r)
+    print(mnist.train.num_examples)
+
+    predictions_arr, acc_metric, sess_inst = train_neural_network(data=mnist, x_placeholder=x_input,
+                                                    y_placeholder=y_target, epochs=epochs, no_of_classes=n_classes,
+                                keep_rate=keep_rate, device_type=device_type, batch_size=batch_size, learning_rate=l_r)
+
+    display_results(prediction_inst=predictions_arr, input_data=x_test_input, target_label=y_test_target, session_instance=sess_inst,
+                    x_buffer_placeholder=x_test_input)
+
+    #sess_inst.close()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
