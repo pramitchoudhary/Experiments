@@ -1,6 +1,6 @@
 # Reference: https://pythonprogramming.net/cnn-tensorflow-convolutional-nerual-network-machine-learning-tutorial/
 # Reference on Optimization: Adam --> https://arxiv.org/abs/1412.6980
-# Reference for hyper-parameter tunining for Deep Architecture: https://arxiv.org/abs/1206.5533
+# Reference for hyper-parameter tuning for Deep Architecture: https://arxiv.org/abs/1206.5533
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,8 +8,6 @@ import tensorflow as tf
 # Enable logging ...
 # tf.logging.set_verbosity(tf.logging.INFO)
 from tensorflow.examples.tutorials.mnist import input_data
-
-
 
 import argparse
 import sys
@@ -27,68 +25,87 @@ def maxpool2d(x):
 
 def convolutional_neural_network_model(data, no_of_classes, keep_rate):
     # Build the weight and biases dictionary for different layers
-    weights = {'w_conv1':tf.Variable(tf.random_normal([5,5,1,32])),
-    'w_conv2':tf.Variable(tf.random_normal([5,5,32,64])),
-    'w_fc':tf.Variable(tf.random_normal([7*7*64,1024])),
-    'out':tf.Variable(tf.random_normal([1024, no_of_classes]))}
+    weights = {
+    'w_conv1':tf.Variable(tf.random_normal([5,5,1,32]), name='W'),
+    'w_conv2':tf.Variable(tf.random_normal([5,5,32,64]), name='W'),
+    'w_fc':tf.Variable(tf.random_normal([7*7*64,1024]), name='W'),
+    'out':tf.Variable(tf.random_normal([1024, no_of_classes]))
+    }
 
-    biases = {'b_conv1':tf.Variable(tf.random_normal([32])),
-    'b_conv2':tf.Variable(tf.random_normal([64])),
-    'b_fc':tf.Variable(tf.random_normal([1024])),
-    'out':tf.Variable(tf.random_normal([no_of_classes]))}
+    biases = {
+    'b_conv1':tf.Variable(tf.random_normal([32]), name='B'),
+    'b_conv2':tf.Variable(tf.random_normal([64]), name='B'),
+    'b_fc':tf.Variable(tf.random_normal([1024]), name='B'),
+    'out':tf.Variable(tf.random_normal([no_of_classes]))
+    }
 
     # Transform image into 28*28 dimension
     x = tf.reshape(data, shape=[-1, 28, 28, 1])
 
     # First Conv-ReLu-MaxPool Layer
     conv1 = tf.nn.relu(conv2d(x, weights['w_conv1']) + biases['b_conv1'])
+    tf.summary.histogram("weights", weights['w_conv1'])
+    tf.summary.histogram("biases", biases['b_conv1'])
+    tf.summary.histogram("activations", conv1)
     conv1 = maxpool2d(conv1)
 
     # Second Conv-ReLu-MaxPool Layer
     conv2 = tf.nn.relu(conv2d(conv1, weights['w_conv2']) + biases['b_conv2'])
+    tf.summary.histogram("weights", weights['w_conv2'])
+    tf.summary.histogram("biases", biases['b_conv2'])
+    tf.summary.histogram("activations", conv2)
     conv2 = maxpool2d(conv2)
 
-    fc = tf.reshape(conv2, [-1, 7*7*64])
-    fc = tf.nn.relu(tf.matmul(fc, weights['w_fc']) + biases['b_fc'])
-    # Helps in controling the complexity of the model
-    fc = tf.nn.dropout(fc, keep_rate)
+    flatten = tf.reshape(conv2, [-1, 7*7*64])
+    fc = tf.matmul(flatten, weights['w_fc']) + biases['b_fc']
+    fc_relu = tf.nn.relu(fc)
+    tf.summary.histogram("weights", weights['w_fc'])
+    tf.summary.histogram("biases", biases['b_fc'])
+    tf.summary.histogram("activations", fc)
+    tf.summary.histogram("fc/relu", fc_relu)
+
+    # Helps in controlling the complexity of the model
+    fc = tf.nn.dropout(fc_relu, keep_rate)
 
     output = tf.matmul(fc, weights['out']) + biases['out']
+    tf.summary.histogram("output_wts", weights['out'])
+    tf.summary.histogram("output_bias", biases['out'])
     return output
 
 
 def train_neural_network(data, x_placeholder, y_placeholder, epochs, no_of_classes, learning_rate, device_type,
                          keep_rate=0.5, batch_size=128):
+
     with tf.device(device_type):
         predictions = convolutional_neural_network_model(x_placeholder, no_of_classes, keep_rate)
         print("Instance type: {}".format(type(predictions)))
         print(predictions)
 
         with tf.name_scope('Loss'):
-            loss_func = tf.reduce_mean( tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=y_placeholder) )
+            loss_func = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=y_placeholder))
+            tf.summary.scalar("Loss", loss_func)
 
-        optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, epsilon=0.1).minimize(loss_func)
-        tf.summary.scalar("Loss", loss_func)
+        with tf.name_scope('train'):
+            optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, epsilon=0.1).minimize(loss_func)
+            tf.summary.scalar("learning_rate", learning_rate)
 
-        with tf.name_scope('Accuracy'):
-            with tf.name_scope('correct_prediction'):
-                correct_prediction = tf.equal(tf.argmax(predictions, axis=1), tf.argmax(y_placeholder, axis=1))
-            with tf.name_scope('Accuracy'):
-                accuracy = tf.reduce_mean(tf.cast(correct_prediction, 'float'))
-        tf.summary.scalar('accuracy', accuracy)
+        with tf.name_scope('Metric'):
+            # get predictions and compute accuracy
+            correct_prediction = tf.equal(tf.argmax(predictions, axis=1), tf.argmax(y_placeholder, axis=1))
+            accuracy = tf.reduce_mean(tf.cast(correct_prediction, 'float'))
+            tf.summary.scalar('accuracy', accuracy)
 
         # Merge the summary op
         merged_summary_op = tf.summary.merge_all()
 
     # number of iterations
     hm_epochs = epochs
-
     initializer = tf.global_variables_initializer()
 
     sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=True))
     sess.run(initializer)
 
-    # write logs to Tensorboard
+    # write summary logs and graphs to Tensorboard
     summary_writer = tf.summary.FileWriter(logs_path, graph=tf.get_default_graph())
 
     for epoch in range(hm_epochs):
@@ -100,34 +117,33 @@ def train_neural_network(data, x_placeholder, y_placeholder, epochs, no_of_class
 
             # Write log at every iteration
             summary_writer.add_summary(summary, epoch)
-
             epoch_loss += c
 
         print('Epoch', epoch, 'completed out of',hm_epochs,'loss:', epoch_loss)
+        # Evaluate accuracy on the test data-set
+        accuracy_metric = accuracy.eval({x_placeholder:data.test.images, y_placeholder:data.test.labels}, session=sess)
+        print('Accuracy on Test set (Epoch {}):'.format(epoch), accuracy_metric)
 
-    # Evaluate accuracy on the test dataset
+    # Evaluate accuracy on the test data-set
     accuracy_metric = accuracy.eval({x_placeholder:data.test.images, y_placeholder:data.test.labels}, session=sess)
     print('Accuracy on Test set:', accuracy_metric)
-    return (predictions, accuracy_metric, sess)
+    return predictions, accuracy_metric, sess
 
 
 def predict(input_images, x_buffer, prediction_inst, session_instance):
     prediction = tf.argmax(prediction_inst, axis=1)
-    values = prediction.eval({x_buffer:input_images}, session=session_instance)
-    print(values)
-    return values
+    #values = prediction.eval({x_buffer:input_images}, session=session_instance)
+    #print(values)
+    return prediction
 
 
-# def test_prediction():
-#     return 0
-#
-#
 def display_results(input_data, target_label, session_instance, prediction_inst, x_buffer_placeholder):
    predicted = predict(input_data, session_instance=session_instance, prediction_inst=prediction_inst,
                   x_buffer=x_buffer_placeholder)
-   actual = target_label
-   print(predicted)
-   print(acutal)
+   #actual = target_label
+   print(type(predicted))
+   print(target_label)
+   #print(str(acutal))
    # for i in range(6):
    #     rand_index = np.random.choice(len(input_data), 1)
    #     print("Acutal Label:{} ; Predicted Label{}".format(actual[rand_index], predicted[rand_index]))
@@ -165,6 +181,20 @@ def main(args):
     y_test_target = mnist.test.labels
 
     print(mnist.train.num_examples)
+    summary_op1 = tf.summary.text('no_of_classes', tf.convert_to_tensor('Tag1: {}'.format(n_classes)))
+    summary_op2 = tf.summary.text('keep_rate', tf.convert_to_tensor('Tag2: {}'.format(keep_rate)))
+    summary_op3 = tf.summary.text('batch_size', tf.convert_to_tensor('Tag3: {}'.format(batch_size)))
+    summary_op4 = tf.summary.text('learning_rate', tf.convert_to_tensor('Tag4: {}'.format(l_r)))
+    summary_op5 = tf.summary.text('epochs', tf.convert_to_tensor('Tag5: {}'.format(epochs)))
+    summary_op6 = tf.summary.text('no_of_examples', tf.convert_to_tensor('Tag6: {}'.format(mnist.train.num_examples)))
+
+
+    with tf.Session() as sess:
+        summary_writer = tf.summary.FileWriter(logs_path, graph=tf.get_default_graph())
+    for index, summary_op in enumerate([summary_op1, summary_op2, summary_op3, summary_op4, summary_op5, summary_op6]):
+        text = sess.run(summary_op)
+        summary_writer.add_summary(text, index)
+    summary_writer.close()
 
     predictions_arr, acc_metric, sess_inst = train_neural_network(data=mnist, x_placeholder=x_input,
                                                     y_placeholder=y_target, epochs=epochs, no_of_classes=n_classes,
