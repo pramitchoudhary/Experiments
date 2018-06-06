@@ -1,0 +1,1 @@
+This section relates to model selection and tuning. Given a dataset, can we search an input space of algorithms, models, and hyperparameters efficiently to identify some optimal model (or more generally, a pipeline). 

@@ -1,0 +1,1048 @@
+{
+  "paragraphs": [
+    {
+      "text": "%dep\rz.reset();\rz.load(\"com.databricks:spark-csv_2.10:1.5.0\");",
+      "dateUpdated": "2016-10-24T02:57:23+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476743399588_-875919038",
+      "id": "20161017-222959_168244444",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "DepInterpreter(%dep) deprecated. Remove dependencies and repositories through GUI interpreter menu instead.\nDepInterpreter(%dep) deprecated. Load dependency through GUI interpreter menu instead.\nres0: org.apache.zeppelin.dep.Dependency = org.apache.zeppelin.dep.Dependency@73bd31f0\n"
+      },
+      "dateCreated": "2016-10-17T10:29:59+0000",
+      "dateStarted": "2016-10-24T02:57:23+0000",
+      "dateFinished": "2016-10-24T02:57:28+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:212"
+    },
+    {
+      "text": "import java.io.File;\rimport scala.io.Source;\rimport java.net.URI;\rimport org.apache.hadoop.fs.FileSystem;\rimport org.apache.hadoop.fs.Path;\r\rimport org.apache.log4j.Logger;\rimport org.apache.log4j.Level;\r\rimport org.apache.spark.sql.functions._;\rimport org.apache.spark.SparkContext._;\rimport org.apache.spark.rdd._;\rimport org.apache.spark.mllib.linalg._;\rimport org.apache.spark.mllib.regression._;\rimport org.apache.spark.{SparkContext, SparkConf};\rimport org.apache.spark.sql.hive.HiveContext;\rimport org.apache.spark.sql.DataFrame;\rimport org.apache.spark.sql.Row;\rimport org.apache.spark.sql.SQLContext;\rimport org.apache.spark.sql.types.{StructType, StructField, StringType, IntegerType, FloatType, TimestampType, LongType, ShortType};\rimport org.apache.spark.ml.feature.VectorAssembler;\rimport org.apache.spark.mllib.linalg.Vectors;\r\rimport org.apache.spark.mllib.evaluation._;\rimport org.apache.spark.mllib.tree._;\rimport org.apache.spark.mllib.tree.model._;\r\rimport scala.util.Try;\rimport sqlContext.implicits._;",
+      "dateUpdated": "2016-10-31T00:08:21+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476743414869_172552363",
+      "id": "20161017-223014_1037772993",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "import java.io.File\nimport scala.io.Source\nimport java.net.URI\nimport org.apache.hadoop.fs.FileSystem\nimport org.apache.hadoop.fs.Path\nimport org.apache.log4j.Logger\nimport org.apache.log4j.Level\nimport org.apache.spark.sql.functions._\nimport org.apache.spark.SparkContext._\nimport org.apache.spark.rdd._\nimport org.apache.spark.mllib.linalg._\nimport org.apache.spark.mllib.regression._\nimport org.apache.spark.{SparkContext, SparkConf}\nimport org.apache.spark.sql.hive.HiveContext\nimport org.apache.spark.sql.DataFrame\nimport org.apache.spark.sql.Row\nimport org.apache.spark.sql.SQLContext\nimport org.apache.spark.sql.types.{StructType, StructField, StringType, IntegerType, FloatType, TimestampType, LongType, ShortType}\nimport org.apache.spark.ml.feature.VectorAssembler\nimport org.apache.spark..."
+      },
+      "dateCreated": "2016-10-17T10:30:14+0000",
+      "dateStarted": "2016-10-31T00:08:21+0000",
+      "dateFinished": "2016-10-31T00:08:23+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:213"
+    },
+    {
+      "text": "val hiveContext = new HiveContext(sc);\rval sqlContext = new SQLContext(sc);",
+      "dateUpdated": "2016-10-30T18:57:36+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476743473704_-535492883",
+      "id": "20161017-223113_1922484808",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "warning: there were two deprecation warnings; re-run with -deprecation for details\nhiveContext: org.apache.spark.sql.hive.HiveContext = org.apache.spark.sql.hive.HiveContext@43eb75e\nsqlContext: org.apache.spark.sql.SQLContext = org.apache.spark.sql.SQLContext@2ac76562\n"
+      },
+      "dateCreated": "2016-10-17T10:31:13+0000",
+      "dateStarted": "2016-10-30T18:57:36+0000",
+      "dateFinished": "2016-10-30T18:57:37+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:214"
+    },
+    {
+      "text": "val fields = StructType(Array(\n        StructField(\"Id\",StringType,true),\n        StructField(\"Elevation\",IntegerType,true),\n        StructField(\"Aspect\",IntegerType,true),\n        StructField(\"Slope\",IntegerType,true),\n        StructField(\"Horizontal_Distance_To_Hydrology\",IntegerType,true),\n        StructField(\"Vertical_Distance_To_Hydrology\",IntegerType,true),\n        StructField(\"Horizontal_Distance_To_Roadways\",IntegerType,true),\n        StructField(\"Hillshade_9am\",IntegerType,true),\n        StructField(\"Hillshade_Noon\",IntegerType,true),\n        StructField(\"Hillshade_3pm\",IntegerType,true),\n        StructField(\"Horizontal_Distance_To_Fire_Points\",IntegerType,true),\n        StructField(\"Wilderness_Area1\",ShortType,true),\n        StructField(\"Wilderness_Area2\",ShortType,true),\n        StructField(\"Wilderness_Area3\",ShortType,true),\n        StructField(\"Wilderness_Area4\",ShortType,true),\n        StructField(\"Soil_Type1\",ShortType,true),\n        StructField(\"Soil_Type2\",ShortType,true),\n        StructField(\"Soil_Type3\",ShortType,true),\n        StructField(\"Soil_Type4\",ShortType,true),\n        StructField(\"Soil_Type5\",ShortType,true),\n        StructField(\"Soil_Type6\",ShortType,true),\n        StructField(\"Soil_Type7\",ShortType,true),\n        StructField(\"Soil_Type8\",ShortType,true),\n        StructField(\"Soil_Type9\",ShortType,true),\n        StructField(\"Soil_Type10\",ShortType,true),\n        StructField(\"Soil_Type11\",ShortType,true),\n        StructField(\"Soil_Type12\",ShortType,true),\n        StructField(\"Soil_Type13\",ShortType,true),\n        StructField(\"Soil_Type14\",ShortType,true),\n        StructField(\"Soil_Type15\",ShortType,true),\n        StructField(\"Soil_Type16\",ShortType,true),\n        StructField(\"Soil_Type17\",ShortType,true),\n        StructField(\"Soil_Type18\",ShortType,true),\n        StructField(\"Soil_Type19\",ShortType,true),\n        StructField(\"Soil_Type20\",ShortType,true),\n        StructField(\"Soil_Type21\",ShortType,true),\n        StructField(\"Soil_Type22\",ShortType,true),\n        StructField(\"Soil_Type23\",ShortType,true),\n        StructField(\"Soil_Type24\",ShortType,true),\n        StructField(\"Soil_Type25\",ShortType,true),\n        StructField(\"Soil_Type26\",ShortType,true),\n        StructField(\"Soil_Type27\",ShortType,true),\n        StructField(\"Soil_Type28\",ShortType,true),\n        StructField(\"Soil_Type29\",ShortType,true),\n        StructField(\"Soil_Type30\",ShortType,true),\n        StructField(\"Soil_Type31\",ShortType,true),\n        StructField(\"Soil_Type32\",ShortType,true),\n        StructField(\"Soil_Type33\",ShortType,true),\n        StructField(\"Soil_Type34\",ShortType,true),\n        StructField(\"Soil_Type35\",ShortType,true),\n        StructField(\"Soil_Type36\",ShortType,true),\n        StructField(\"Soil_Type37\",ShortType,true),\n        StructField(\"Soil_Type38\",ShortType,true),\n        StructField(\"Soil_Type39\",ShortType,true),\n        StructField(\"Soil_Type40\",ShortType,true),\n        StructField(\"Cover_Type\",ShortType,true)\n        ))",
+      "dateUpdated": "2016-10-30T18:58:19+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala",
+        "lineNumbers": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476752472965_449040379",
+      "id": "20161018-010112_817960250",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "fields: org.apache.spark.sql.types.StructType = StructType(StructField(Id,StringType,true), StructField(Elevation,IntegerType,true), StructField(Aspect,IntegerType,true), StructField(Slope,IntegerType,true), StructField(Horizontal_Distance_To_Hydrology,IntegerType,true), StructField(Vertical_Distance_To_Hydrology,IntegerType,true), StructField(Horizontal_Distance_To_Roadways,IntegerType,true), StructField(Hillshade_9am,IntegerType,true), StructField(Hillshade_Noon,IntegerType,true), StructField(Hillshade_3pm,IntegerType,true), StructField(Horizontal_Distance_To_Fire_Points,IntegerType,true), StructField(Wilderness_Area1,ShortType,true), StructField(Wilderness_Area2,ShortType,true), StructField(Wilderness_Area3,ShortType,true), StructField(Wilderness_Area4,ShortType,true), StructField(So..."
+      },
+      "dateCreated": "2016-10-18T01:01:12+0000",
+      "dateStarted": "2016-10-30T18:58:19+0000",
+      "dateFinished": "2016-10-30T18:58:19+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:215"
+    },
+    {
+      "text": "// Read the data\nval inputDataDF = sqlContext.read.format(\"com.databricks.spark.csv\").\n                                    option(\"header\", \"true\").schema(fields).\n                                    load(\"s3://ds-etl/data/train.csv\")\n// Basic statistics and type checks\ninputDataDF.printSchema\ninputDataDF.show(1, false)\ninputDataDF.describe().show(false)\ninputDataDF.count()\n// Select a specific feature and explore statistics\ninputDataDF.describe(\"Elevation\").show(false)",
+      "dateUpdated": "2016-10-30T18:58:58+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1477099572345_-988027143",
+      "id": "20161022-012612_1605682136",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "inputDataDF: org.apache.spark.sql.DataFrame = [Id: string, Elevation: int ... 54 more fields]\nroot\n |-- Id: string (nullable = true)\n |-- Elevation: integer (nullable = true)\n |-- Aspect: integer (nullable = true)\n |-- Slope: integer (nullable = true)\n |-- Horizontal_Distance_To_Hydrology: integer (nullable = true)\n |-- Vertical_Distance_To_Hydrology: integer (nullable = true)\n |-- Horizontal_Distance_To_Roadways: integer (nullable = true)\n |-- Hillshade_9am: integer (nullable = true)\n |-- Hillshade_Noon: integer (nullable = true)\n |-- Hillshade_3pm: integer (nullable = true)\n |-- Horizontal_Distance_To_Fire_Points: integer (nullable = true)\n |-- Wilderness_Area1: short (nullable = true)\n |-- Wilderness_Area2: short (nullable = true)\n |-- Wilderness_Area3: short (nullable = true)\n |-- Wilderness_Area4: short (nullable = true)\n |-- Soil_Type1: short (nullable = true)\n |-- Soil_Type2: short (nullable = true)\n |-- Soil_Type3: short (nullable = true)\n |-- Soil_Type4: short (nullable = true)\n |-- Soil_Type5: short (nullable = true)\n |-- Soil_Type6: short (nullable = true)\n |-- Soil_Type7: short (nullable = true)\n |-- Soil_Type8: short (nullable = true)\n |-- Soil_Type9: short (nullable = true)\n |-- Soil_Type10: short (nullable = true)\n |-- Soil_Type11: short (nullable = true)\n |-- Soil_Type12: short (nullable = true)\n |-- Soil_Type13: short (nullable = true)\n |-- Soil_Type14: short (nullable = true)\n |-- Soil_Type15: short (nullable = true)\n |-- Soil_Type16: short (nullable = true)\n |-- Soil_Type17: short (nullable = true)\n |-- Soil_Type18: short (nullable = true)\n |-- Soil_Type19: short (nullable = true)\n |-- Soil_Type20: short (nullable = true)\n |-- Soil_Type21: short (nullable = true)\n |-- Soil_Type22: short (nullable = true)\n |-- Soil_Type23: short (nullable = true)\n |-- Soil_Type24: short (nullable = true)\n |-- Soil_Type25: short (nullable = true)\n |-- Soil_Type26: short (nullable = true)\n |-- Soil_Type27: short (nullable = true)\n |-- Soil_Type28: short (nullable = true)\n |-- Soil_Type29: short (nullable = true)\n |-- Soil_Type30: short (nullable = true)\n |-- Soil_Type31: short (nullable = true)\n |-- Soil_Type32: short (nullable = true)\n |-- Soil_Type33: short (nullable = true)\n |-- Soil_Type34: short (nullable = true)\n |-- Soil_Type35: short (nullable = true)\n |-- Soil_Type36: short (nullable = true)\n |-- Soil_Type37: short (nullable = true)\n |-- Soil_Type38: short (nullable = true)\n |-- Soil_Type39: short (nullable = true)\n |-- Soil_Type40: short (nullable = true)\n |-- Cover_Type: short (nullable = true)\n\n+---+---------+------+-----+--------------------------------+------------------------------+-------------------------------+-------------+--------------+-------------+----------------------------------+----------------+----------------+----------------+----------------+----------+----------+----------+----------+----------+----------+----------+----------+----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+----------+\n|Id |Elevation|Aspect|Slope|Horizontal_Distance_To_Hydrology|Vertical_Distance_To_Hydrology|Horizontal_Distance_To_Roadways|Hillshade_9am|Hillshade_Noon|Hillshade_3pm|Horizontal_Distance_To_Fire_Points|Wilderness_Area1|Wilderness_Area2|Wilderness_Area3|Wilderness_Area4|Soil_Type1|Soil_Type2|Soil_Type3|Soil_Type4|Soil_Type5|Soil_Type6|Soil_Type7|Soil_Type8|Soil_Type9|Soil_Type10|Soil_Type11|Soil_Type12|Soil_Type13|Soil_Type14|Soil_Type15|Soil_Type16|Soil_Type17|Soil_Type18|Soil_Type19|Soil_Type20|Soil_Type21|Soil_Type22|Soil_Type23|Soil_Type24|Soil_Type25|Soil_Type26|Soil_Type27|Soil_Type28|Soil_Type29|Soil_Type30|Soil_Type31|Soil_Type32|Soil_Type33|Soil_Type34|Soil_Type35|Soil_Type36|Soil_Type37|Soil_Type38|Soil_Type39|Soil_Type40|Cover_Type|\n+---+---------+------+-----+--------------------------------+------------------------------+-------------------------------+-------------+--------------+-------------+----------------------------------+----------------+----------------+----------------+----------------+----------+----------+----------+----------+----------+----------+----------+----------+----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+----------+\n|1  |2596     |51    |3    |258                             |0                             |510                            |221          |232           |148          |6279                              |1               |0               |0               |0               |0         |0         |0         |0         |0         |0         |0         |0         |0         |0          |0          |0          |0          |0          |0          |0          |0          |0          |0          |0          |0          |0          |0          |0          |0          |0          |0          |0          |1          |0          |0          |0          |0          |0          |0          |0          |0          |0          |0          |0          |5         |\n+---+---------+------+-----+--------------------------------+------------------------------+-------------------------------+-------------+--------------+-------------+----------------------------------+----------------+----------------+----------------+----------------+----------+----------+----------+----------+----------+----------+----------+----------+----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+----------+\nonly showing top 1 row\n\n+-------+------------------+------------------+------------------+--------------------------------+------------------------------+-------------------------------+------------------+------------------+------------------+----------------------------------+-------------------+--------------------+-------------------+-------------------+--------------------+-------------------+-------------------+-------------------+--------------------+-------------------+----------+--------------------+--------------------+-------------------+--------------------+--------------------+-------------------+--------------------+-----------+-------------------+-------------------+--------------------+---------------------+--------------------+---------------------+--------------------+--------------------+--------------------+--------------------+---------------------+-------------------+--------------------+-------------------+-------------------+--------------------+-------------------+--------------------+--------------------+--------------------+--------------------+---------------------+-------------------+-------------------+--------------------+-----------------+\n|summary|Elevation         |Aspect            |Slope             |Horizontal_Distance_To_Hydrology|Vertical_Distance_To_Hydrology|Horizontal_Distance_To_Roadways|Hillshade_9am     |Hillshade_Noon    |Hillshade_3pm     |Horizontal_Distance_To_Fire_Points|Wilderness_Area1   |Wilderness_Area2    |Wilderness_Area3   |Wilderness_Area4   |Soil_Type1          |Soil_Type2         |Soil_Type3         |Soil_Type4         |Soil_Type5          |Soil_Type6         |Soil_Type7|Soil_Type8          |Soil_Type9          |Soil_Type10        |Soil_Type11         |Soil_Type12         |Soil_Type13        |Soil_Type14         |Soil_Type15|Soil_Type16        |Soil_Type17        |Soil_Type18         |Soil_Type19          |Soil_Type20         |Soil_Type21          |Soil_Type22         |Soil_Type23         |Soil_Type24         |Soil_Type25         |Soil_Type26          |Soil_Type27        |Soil_Type28         |Soil_Type29        |Soil_Type30        |Soil_Type31         |Soil_Type32        |Soil_Type33         |Soil_Type34         |Soil_Type35         |Soil_Type36         |Soil_Type37          |Soil_Type38        |Soil_Type39        |Soil_Type40         |Cover_Type       |\n+-------+------------------+------------------+------------------+--------------------------------+------------------------------+-------------------------------+------------------+------------------+------------------+----------------------------------+-------------------+--------------------+-------------------+-------------------+--------------------+-------------------+-------------------+-------------------+--------------------+-------------------+----------+--------------------+--------------------+-------------------+--------------------+--------------------+-------------------+--------------------+-----------+-------------------+-------------------+--------------------+---------------------+--------------------+---------------------+--------------------+--------------------+--------------------+--------------------+---------------------+-------------------+--------------------+-------------------+-------------------+--------------------+-------------------+--------------------+--------------------+--------------------+--------------------+---------------------+-------------------+-------------------+--------------------+-----------------+\n|count  |15120             |15120             |15120             |15120                           |15120                         |15120                          |15120             |15120             |15120             |15120                             |15120              |15120               |15120              |15120              |15120               |15120              |15120              |15120              |15120               |15120              |15120     |15120               |15120               |15120              |15120               |15120               |15120              |15120               |15120      |15120              |15120              |15120               |15120                |15120               |15120                |15120               |15120               |15120               |15120               |15120                |15120              |15120               |15120              |15120              |15120               |15120              |15120               |15120               |15120               |15120               |15120                |15120              |15120              |15120               |15120            |\n|mean   |2749.3225529100528|156.67665343915343|16.501587301587303|227.19570105820105              |51.076521164021166            |1714.0232142857142             |212.70429894179895|218.96560846560845|135.09199735449735|1511.1472883597883                |0.23789682539682538|0.033002645502645506|0.4199074074074074 |0.3091931216931217 |0.023478835978835978|0.0412037037037037 |0.06362433862433862|0.05575396825396826|0.010912698412698412|0.04298941798941799|0.0       |6.613756613756614E-5|6.613756613756613E-4|0.14166666666666666|0.026851851851851852|0.015013227513227513|0.03148148148148148|0.011177248677248678|0.0        |0.00753968253968254|0.04047619047619048|0.003968253968253968|0.0030423280423280425|0.009193121693121692|0.0010582010582010583|0.022817460317460316|0.050066137566137564|0.016997354497354497|6.613756613756614E-5|0.0035714285714285713|9.92063492063492E-4|5.952380952380953E-4|0.08538359788359788|0.04794973544973545|0.021957671957671957|0.04563492063492063|0.040740740740740744|0.001455026455026455|0.006746031746031746|6.613756613756613E-4|0.0022486772486772486|0.04814814814814815|0.04345238095238095|0.030357142857142857|4.0              |\n|stddev |417.67818734804985|110.08580138610411|8.453926761999584 |210.07529570239032              |61.239406129444646            |1325.0663581692534             |30.561286886177108|22.80196554409861 |45.895188708214135|1099.9364926736116                |0.425809719856358  |0.1786493260870813  |0.49355981178382224|0.46217622464681973|0.15142356723629707 |0.19876763193629404|0.2440906033625017 |0.22945357994812157|0.10389574262912685 |0.20283995932167137|0.0       |0.008132500607904443|0.02570956941195731 |0.34871946446745955|0.1616556780560999  |0.1216092455723292  |0.17462077338991797|0.10513348092307435 |0.0        |0.08650624634186568|0.19707977393105489|0.0628710454436375  |0.05507515679231105  |0.09544218494816709 |0.032513861445973756 |0.1493261483375178  |0.21808866342443337 |0.1292654229343077  |0.008132500607904441|0.05965659097666394  |0.0314824531127983 |0.02439104617715627 |0.2794609173648996 |0.21366697858244943|0.1465501724095636  |0.20869895853152437|0.1976955175854313  |0.038118308609981104|0.08185942821260399 |0.025709569411957355|0.047368439880743005 |0.21408627993600787|0.20387991731293653|0.1715736974641611  |2.000066140846949|\n|min    |1863              |0                 |0                 |0                               |-146                          |0                              |0                 |99                |0                 |0                                 |0                  |0                   |0                  |0                  |0                   |0                  |0                  |0                  |0                   |0                  |0         |0                   |0                   |0                  |0                   |0                   |0                  |0                   |0          |0                  |0                  |0                   |0                    |0                   |0                    |0                   |0                   |0                   |0                   |0                    |0                  |0                   |0                  |0                  |0                   |0                  |0                   |0                   |0                   |0                   |0                    |0                  |0                  |0                   |1                |\n|max    |3849              |360               |52                |1343                            |554                           |6890                           |254               |254               |248               |6993                              |1                  |1                   |1                  |1                  |1                   |1                  |1                  |1                  |1                   |1                  |0         |1                   |1                   |1                  |1                   |1                   |1                  |1                   |0          |1                  |1                  |1                   |1                    |1                   |1                    |1                   |1                   |1                   |1                   |1                    |1                  |1                   |1                  |1                  |1                   |1                  |1                   |1                   |1                   |1                   |1                    |1                  |1                  |1                   |7                |\n+-------+------------------+------------------+------------------+--------------------------------+------------------------------+-------------------------------+------------------+------------------+------------------+----------------------------------+-------------------+--------------------+-------------------+-------------------+--------------------+-------------------+-------------------+-------------------+--------------------+-------------------+----------+--------------------+--------------------+-------------------+--------------------+--------------------+-------------------+--------------------+-----------+-------------------+-------------------+--------------------+---------------------+--------------------+---------------------+--------------------+--------------------+--------------------+--------------------+---------------------+-------------------+--------------------+-------------------+-------------------+--------------------+-------------------+--------------------+--------------------+--------------------+--------------------+---------------------+-------------------+-------------------+--------------------+-----------------+\n\nres184: Long = 15120\n+-------+------------------+\n|summary|Elevation         |\n+-------+------------------+\n|count  |15120             |\n|mean   |2749.3225529100528|\n|stddev |417.67818734804985|\n|min    |1863              |\n|max    |3849              |\n+-------+------------------+\n\n"
+      },
+      "dateCreated": "2016-10-22T01:26:12+0000",
+      "dateStarted": "2016-10-30T18:58:58+0000",
+      "dateFinished": "2016-10-30T18:59:15+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:216"
+    },
+    {
+      "text": "\n                                    \nval rawData = sc.textFile(\"s3://ds-etl/data/train.csv\")\nval header = rawData.first()\nval inputData = rawData.filter(row => row != header)\n\n// Read the test data\nval rawTestData = sc.textFile(\"s3://ds-etl/data/test.csv\")\nval header = rawTestData.first()\nval inputTestData = rawTestData.filter(row => row != header)",
+      "dateUpdated": "2016-10-31T00:12:15+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476753634124_916163294",
+      "id": "20161018-012034_1099911123",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "rawData: org.apache.spark.rdd.RDD[String] = s3://ds-etl/data/train.csv MapPartitionsRDD[1080] at textFile at <console>:223\nheader: String = Id,Elevation,Aspect,Slope,Horizontal_Distance_To_Hydrology,Vertical_Distance_To_Hydrology,Horizontal_Distance_To_Roadways,Hillshade_9am,Hillshade_Noon,Hillshade_3pm,Horizontal_Distance_To_Fire_Points,Wilderness_Area1,Wilderness_Area2,Wilderness_Area3,Wilderness_Area4,Soil_Type1,Soil_Type2,Soil_Type3,Soil_Type4,Soil_Type5,Soil_Type6,Soil_Type7,Soil_Type8,Soil_Type9,Soil_Type10,Soil_Type11,Soil_Type12,Soil_Type13,Soil_Type14,Soil_Type15,Soil_Type16,Soil_Type17,Soil_Type18,Soil_Type19,Soil_Type20,Soil_Type21,Soil_Type22,Soil_Type23,Soil_Type24,Soil_Type25,Soil_Type26,Soil_Type27,Soil_Type28,Soil_Type29,Soil_Type30,Soil_Type31,Soil_Type32,Soil_Type33,Soil_Type34,Soil_Type35,Soil_Type36,Soil_Type37,Soil_Type38,Soil_Type39,Soil_Type40,Cover_Type\ninputData: org.apache.spark.rdd.RDD[String] = MapPartitionsRDD[1081] at filter at <console>:225\nrawTestData: org.apache.spark.rdd.RDD[String] = s3://ds-etl/data/test.csv MapPartitionsRDD[1083] at textFile at <console>:221\nheader: String = Id,Elevation,Aspect,Slope,Horizontal_Distance_To_Hydrology,Vertical_Distance_To_Hydrology,Horizontal_Distance_To_Roadways,Hillshade_9am,Hillshade_Noon,Hillshade_3pm,Horizontal_Distance_To_Fire_Points,Wilderness_Area1,Wilderness_Area2,Wilderness_Area3,Wilderness_Area4,Soil_Type1,Soil_Type2,Soil_Type3,Soil_Type4,Soil_Type5,Soil_Type6,Soil_Type7,Soil_Type8,Soil_Type9,Soil_Type10,Soil_Type11,Soil_Type12,Soil_Type13,Soil_Type14,Soil_Type15,Soil_Type16,Soil_Type17,Soil_Type18,Soil_Type19,Soil_Type20,Soil_Type21,Soil_Type22,Soil_Type23,Soil_Type24,Soil_Type25,Soil_Type26,Soil_Type27,Soil_Type28,Soil_Type29,Soil_Type30,Soil_Type31,Soil_Type32,Soil_Type33,Soil_Type34,Soil_Type35,Soil_Type36,Soil_Type37,Soil_Type38,Soil_Type39,Soil_Type40\ninputTestData: org.apache.spark.rdd.RDD[String] = MapPartitionsRDD[1084] at filter at <console>:225\n"
+      },
+      "dateCreated": "2016-10-18T01:20:34+0000",
+      "dateStarted": "2016-10-31T00:12:15+0000",
+      "dateFinished": "2016-10-31T00:12:27+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:217"
+    },
+    {
+      "text": "// Convert all column type to Double\nval df2 = inputDataDF.select(inputDataDF.columns.map(c => col(c).cast(DoubleType).alias(c)): _*)\ndf2.show(1, false)",
+      "dateUpdated": "2016-10-30T22:49:28+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476816949305_-879862129",
+      "id": "20161018-185549_2045116697",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "df2: org.apache.spark.sql.DataFrame = [Id: double, Elevation: double ... 54 more fields]\n+---+---------+------+-----+--------------------------------+------------------------------+-------------------------------+-------------+--------------+-------------+----------------------------------+----------------+----------------+----------------+----------------+----------+----------+----------+----------+----------+----------+----------+----------+----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+----------+\n|Id |Elevation|Aspect|Slope|Horizontal_Distance_To_Hydrology|Vertical_Distance_To_Hydrology|Horizontal_Distance_To_Roadways|Hillshade_9am|Hillshade_Noon|Hillshade_3pm|Horizontal_Distance_To_Fire_Points|Wilderness_Area1|Wilderness_Area2|Wilderness_Area3|Wilderness_Area4|Soil_Type1|Soil_Type2|Soil_Type3|Soil_Type4|Soil_Type5|Soil_Type6|Soil_Type7|Soil_Type8|Soil_Type9|Soil_Type10|Soil_Type11|Soil_Type12|Soil_Type13|Soil_Type14|Soil_Type15|Soil_Type16|Soil_Type17|Soil_Type18|Soil_Type19|Soil_Type20|Soil_Type21|Soil_Type22|Soil_Type23|Soil_Type24|Soil_Type25|Soil_Type26|Soil_Type27|Soil_Type28|Soil_Type29|Soil_Type30|Soil_Type31|Soil_Type32|Soil_Type33|Soil_Type34|Soil_Type35|Soil_Type36|Soil_Type37|Soil_Type38|Soil_Type39|Soil_Type40|Cover_Type|\n+---+---------+------+-----+--------------------------------+------------------------------+-------------------------------+-------------+--------------+-------------+----------------------------------+----------------+----------------+----------------+----------------+----------+----------+----------+----------+----------+----------+----------+----------+----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+----------+\n|1.0|2596.0   |51.0  |3.0  |258.0                           |0.0                           |510.0                          |221.0        |232.0         |148.0        |6279.0                            |1.0             |0.0             |0.0             |0.0             |0.0       |0.0       |0.0       |0.0       |0.0       |0.0       |0.0       |0.0       |0.0       |0.0        |0.0        |0.0        |0.0        |0.0        |0.0        |0.0        |0.0        |0.0        |0.0        |0.0        |0.0        |0.0        |0.0        |0.0        |0.0        |0.0        |0.0        |0.0        |1.0        |0.0        |0.0        |0.0        |0.0        |0.0        |0.0        |0.0        |0.0        |0.0        |0.0        |0.0        |5.0       |\n+---+---------+------+-----+--------------------------------+------------------------------+-------------------------------+-------------+--------------+-------------+----------------------------------+----------------+----------------+----------------+----------------+----------+----------+----------+----------+----------+----------+----------+----------+----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+-----------+----------+\nonly showing top 1 row\n\n"
+      },
+      "dateCreated": "2016-10-18T06:55:49+0000",
+      "dateStarted": "2016-10-30T22:46:22+0000",
+      "dateFinished": "2016-10-30T22:46:30+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:218"
+    },
+    {
+      "text": "val featureAssembler = new VectorAssembler().setInputCols(Array(\"Elevation\", \"Aspect\", \"Slope\", \"Horizontal_Distance_To_Hydrology\", \"Vertical_Distance_To_Hydrology\", \"Horizontal_Distance_To_Roadways\",\"Hillshade_9am\", \"Hillshade_Noon\", \"Hillshade_3pm\", \"Horizontal_Distance_To_Fire_Points\", \"Wilderness_Area1\", \"Wilderness_Area2\", \"Wilderness_Area3\", \"Wilderness_Area4\", \"Soil_Type1\", \"Soil_Type2\", \"Soil_Type3\", \"Soil_Type4\", \"Soil_Type5\", \"Soil_Type6\", \"Soil_Type7\", \"Soil_Type8\", \"Soil_Type9\", \"Soil_Type10\", \"Soil_Type11\", \"Soil_Type12\", \"Soil_Type13\", \"Soil_Type14\", \"Soil_Type15\", \"Soil_Type16\", \"Soil_Type17\", \"Soil_Type18\", \"Soil_Type19\", \"Soil_Type20\", \"Soil_Type21\", \"Soil_Type22\", \"Soil_Type23\", \"Soil_Type24\", \"Soil_Type25\", \"Soil_Type26\", \"Soil_Type27\", \"Soil_Type28\", \"Soil_Type29\", \"Soil_Type30\",\"Soil_Type31\", \"Soil_Type32\", \"Soil_Type33\", \"Soil_Type34\", \"Soil_Type35\", \"Soil_Type36\", \"Soil_Type37\", \"Soil_Type38\", \"Soil_Type39\", \"Soil_Type40\")).setOutputCol(\"features\")\nval t = featureAssembler.transform(df2)\n\nval g = t.select($\"features\").rdd.map(r => r(0))\ng.take(1)",
+      "dateUpdated": "2016-10-31T00:09:47+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476814009476_1899656696",
+      "id": "20161018-180649_379651683",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "featureAssembler: org.apache.spark.ml.feature.VectorAssembler = vecAssembler_f96dea9a3665\nt: org.apache.spark.sql.DataFrame = [Id: double, Elevation: double ... 55 more fields]\ng: org.apache.spark.rdd.RDD[Any] = MapPartitionsRDD[1078] at map at <console>:231\nres240: Array[Any] = Array((54,[0,1,2,3,5,6,7,8,9,10,42],[2596.0,51.0,3.0,258.0,510.0,221.0,232.0,148.0,6279.0,1.0,1.0]))\n"
+      },
+      "dateCreated": "2016-10-18T06:06:49+0000",
+      "dateStarted": "2016-10-31T00:09:47+0000",
+      "dateFinished": "2016-10-31T00:09:50+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:219"
+    },
+    {
+      "text": "def saveAsCsv(outDirPath:String, inputDf:DataFrame): Unit = {\n    // Persist the table to disk for future use\n    inputDf.repartition(1).write.mode(\"append\").\n                    format(\"com.databricks.spark.csv\").option(\"header\", \"true\").\n                    save(outDirPath)\n}\n\ndef deleteS3Path(s3path: Option[String]) {\n    s3path match {\n    case Some(value) => {FileSystem.get(new URI(\"s3n://ds-etl\"), sc.hadoopConfiguration).\n                                    delete(new Path(s\"s3n://ds-etl/${value}\"), true)\n                        }\n    case None => println(\"Path Error, something is not right\")\n    }\n    \n}",
+      "dateUpdated": "2016-10-31T00:13:00+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1477001205589_-1933094090",
+      "id": "20161020-220645_1554647436",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "saveAsCsv: (outDirPath: String, inputDf: org.apache.spark.sql.DataFrame)Unit\ndeleteS3Path: (s3path: Option[String])Unit\n"
+      },
+      "dateCreated": "2016-10-20T10:06:45+0000",
+      "dateStarted": "2016-10-31T00:13:00+0000",
+      "dateFinished": "2016-10-31T00:13:01+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:220"
+    },
+    {
+      "text": "",
+      "dateUpdated": "2016-10-30T19:19:24+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1477853999666_1102855730",
+      "id": "20161030-185959_1920830170",
+      "dateCreated": "2016-10-30T18:59:59+0000",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:221"
+    },
+    {
+      "text": "def transformInput(inputRdd: RDD[String], testData: Boolean = false): RDD[LabeledPoint] = {\r    val data = inputRdd.map { line =>\r        val values = line.split(',').map(_.toDouble);\r        val featureVector = if(testData) Vectors.dense(values.drop(1)) else Vectors.dense(values.drop(1).init);\r        // Since, Decision Tree needs value starting at Index 0\r        val label = if(testData) -1 else (values.last - 1);\r        LabeledPoint(label, featureVector);\r    };\r    data\r}",
+      "dateUpdated": "2016-10-31T00:25:12+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476811576814_-1425822160",
+      "id": "20161018-172616_1801094561",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "transformInput: (inputRdd: org.apache.spark.rdd.RDD[String], testData: Boolean)org.apache.spark.rdd.RDD[org.apache.spark.mllib.regression.LabeledPoint]\n"
+      },
+      "dateCreated": "2016-10-18T05:26:16+0000",
+      "dateStarted": "2016-10-31T00:25:12+0000",
+      "dateFinished": "2016-10-31T00:25:13+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:222"
+    },
+    {
+      "text": "val data = transformInput(inputData)\ndata.take(10)",
+      "dateUpdated": "2016-10-31T00:25:18+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476812074674_-498424069",
+      "id": "20161018-173434_1711504614",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "data: org.apache.spark.rdd.RDD[org.apache.spark.mllib.regression.LabeledPoint] = MapPartitionsRDD[1085] at map at <console>:222\nres246: Array[org.apache.spark.mllib.regression.LabeledPoint] = Array((4.0,[2596.0,51.0,3.0,258.0,0.0,510.0,221.0,232.0,148.0,6279.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]), (4.0,[2590.0,56.0,2.0,212.0,-6.0,390.0,220.0,235.0,151.0,6225.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]), (1.0,[2804.0,139.0,9.0,268.0,65.0,3180.0,234.0,238.0,135.0,6121.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]..."
+      },
+      "dateCreated": "2016-10-18T05:34:34+0000",
+      "dateStarted": "2016-10-31T00:25:18+0000",
+      "dateFinished": "2016-10-31T00:25:27+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:223"
+    },
+    {
+      "text": "data.toDF.printSchema",
+      "dateUpdated": "2016-10-22T01:25:32+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1477099501767_451395114",
+      "id": "20161022-012501_783867373",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "root\n |-- label: double (nullable = false)\n |-- features: vector (nullable = true)\n\n"
+      },
+      "dateCreated": "2016-10-22T01:25:01+0000",
+      "dateStarted": "2016-10-22T01:25:32+0000",
+      "dateFinished": "2016-10-22T01:25:33+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:224"
+    },
+    {
+      "text": "// Splitting the data\n// TODO: Check if Stratified Sampling is included in this randomSplit\n// Train and evaluate model fit using CrossValidation\nval Array(trainData, testData, cvData) = data.randomSplit(Array(0.8, 0.1, 0.1))\n    trainData.cache()\n    testData.cache()\n    cvData.cache()",
+      "dateUpdated": "2016-10-31T00:25:36+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476821984420_-1562007726",
+      "id": "20161018-201944_1694520746",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "trainData: org.apache.spark.rdd.RDD[org.apache.spark.mllib.regression.LabeledPoint] = MapPartitionsRDD[1086] at randomSplit at <console>:236\ntestData: org.apache.spark.rdd.RDD[org.apache.spark.mllib.regression.LabeledPoint] = MapPartitionsRDD[1087] at randomSplit at <console>:236\ncvData: org.apache.spark.rdd.RDD[org.apache.spark.mllib.regression.LabeledPoint] = MapPartitionsRDD[1088] at randomSplit at <console>:236\nres249: trainData.type = MapPartitionsRDD[1086] at randomSplit at <console>:236\nres250: testData.type = MapPartitionsRDD[1087] at randomSplit at <console>:236\nres251: cvData.type = MapPartitionsRDD[1088] at randomSplit at <console>:236\n"
+      },
+      "dateCreated": "2016-10-18T08:19:44+0000",
+      "dateStarted": "2016-10-31T00:25:36+0000",
+      "dateFinished": "2016-10-31T00:25:38+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:225"
+    },
+    {
+      "text": "def getMetrics(model: RandomForestModel, data: RDD[LabeledPoint]): MulticlassMetrics = {\r    val predictionsAndLabels = data.map(example => \r        (model.predict(example.features), example.label)\r    );\r    \r    // Measure the quality of the predictions from a classifier\r    new MulticlassMetrics(predictionsAndLabels);\r}",
+      "dateUpdated": "2016-10-31T00:27:04+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476822151886_-491823465",
+      "id": "20161018-202231_1989947905",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "getMetrics: (model: org.apache.spark.mllib.tree.model.RandomForestModel, data: org.apache.spark.rdd.RDD[org.apache.spark.mllib.regression.LabeledPoint])org.apache.spark.mllib.evaluation.MulticlassMetrics\n"
+      },
+      "dateCreated": "2016-10-18T08:22:31+0000",
+      "dateStarted": "2016-10-31T00:27:04+0000",
+      "dateFinished": "2016-10-31T00:27:05+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:226"
+    },
+    {
+      "text": "// TODO: build abstraction around LabeledPoint\nval numClasses:Int = trainData.map(_.label).distinct().count().toInt",
+      "dateUpdated": "2016-10-31T00:25:49+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476839111837_1578396601",
+      "id": "20161019-010511_744814419",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "numClasses: Int = 7\n"
+      },
+      "dateCreated": "2016-10-19T01:05:11+0000",
+      "dateStarted": "2016-10-31T00:25:49+0000",
+      "dateFinished": "2016-10-31T00:25:51+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:227"
+    },
+    {
+      "text": "\rval model = DecisionTree.trainClassifier(trainData, numClasses, Map[Int,Int](), \"gini\", 4, 100);\rval metrics = getMetrics(model, cvData);",
+      "dateUpdated": "2016-10-31T00:25:56+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476822951449_-1547822399",
+      "id": "20161018-203551_2063721634",
+      "result": {
+        "code": "ERROR",
+        "type": "TEXT",
+        "msg": "<console>:240: error: type mismatch;\n found   : org.apache.spark.mllib.tree.model.DecisionTreeModel\n required: org.apache.spark.mllib.tree.model.RandomForestModel\nval metrics = getMetrics(model, cvData);\n                         ^\n"
+      },
+      "dateCreated": "2016-10-18T08:35:51+0000",
+      "dateStarted": "2016-10-31T00:25:56+0000",
+      "dateFinished": "2016-10-31T00:25:57+0000",
+      "status": "ERROR",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:228"
+    },
+    {
+      "text": "// 7*7 matrix\nmetrics.confusionMatrix",
+      "dateUpdated": "2016-10-24T03:00:01+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476823380017_1031530938",
+      "id": "20161018-204300_1856669295",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "res20: org.apache.spark.mllib.linalg.Matrix =\n148.0  27.0  1.0    0.0    20.0   1.0    18.0\n60.0   85.0  0.0    0.0    73.0   5.0    2.0\n0.0    0.0   115.0  28.0   12.0   65.0   0.0\n0.0    0.0   26.0   164.0  0.0    10.0   0.0\n0.0    9.0   2.0    0.0    196.0  10.0   0.0\n0.0    0.0   54.0   19.0   14.0   126.0  0.0\n34.0   0.0   0.0    0.0    0.0    0.0    178.0\n"
+      },
+      "dateCreated": "2016-10-18T08:43:00+0000",
+      "dateStarted": "2016-10-24T03:00:01+0000",
+      "dateFinished": "2016-10-24T03:00:02+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:229"
+    },
+    {
+      "text": "// invidual class precision, recall\n// Observation: It varies for each class\n// How do we determine, if this baseline is good enough. A broken clock in correct twice a day,\n// random guessing will produce correct results occassionally\ndef computeMetrics(numOfClasses:Int, associatedMetrics:MulticlassMetrics) = {\n(0 until numOfClasses).map(\n    row => (associatedMetrics.precision(row), associatedMetrics.recall(row))\n    )\n}",
+      "dateUpdated": "2016-10-31T00:27:13+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476823493901_848575996",
+      "id": "20161018-204453_590565107",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "computeMetrics: (numOfClasses: Int, associatedMetrics: org.apache.spark.mllib.evaluation.MulticlassMetrics)scala.collection.immutable.IndexedSeq[(Double, Double)]\n"
+      },
+      "dateCreated": "2016-10-18T08:44:53+0000",
+      "dateStarted": "2016-10-31T00:27:13+0000",
+      "dateFinished": "2016-10-31T00:27:14+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:230"
+    },
+    {
+      "text": "def classProbabilities(data: RDD[LabeledPoint]): Array[Double] = { \n    val countsByCategory = data.map(_.label).countByValue()\n    val counts = countsByCategory.toArray.sortBy(_._1).map(_._2) \n    counts.map(_.toDouble / counts.sum)\n}",
+      "dateUpdated": "2016-10-31T00:27:17+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476823740179_1706317568",
+      "id": "20161018-204900_417396831",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "classProbabilities: (data: org.apache.spark.rdd.RDD[org.apache.spark.mllib.regression.LabeledPoint])Array[Double]\n"
+      },
+      "dateCreated": "2016-10-18T08:49:00+0000",
+      "dateStarted": "2016-10-31T00:27:17+0000",
+      "dateFinished": "2016-10-31T00:27:18+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:231"
+    },
+    {
+      "text": "computeMetrics(numClasses, metrics)",
+      "dateUpdated": "2016-10-21T02:08:35+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476841237052_992657702",
+      "id": "20161019-014037_183360396",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "(0.6478494623655914,0.5171673819742489)\n(0.5478547854785478,0.38875878220140514)\n(0.47420965058236275,0.6566820276497696)\n(0.7123809523809523,0.9055690072639225)\n(0.6168067226890757,0.8265765765765766)\n(0.7514792899408284,0.26348547717842324)\n(0.7522441651705566,0.918859649122807)\n"
+      },
+      "dateCreated": "2016-10-19T01:40:37+0000",
+      "dateStarted": "2016-10-21T02:08:35+0000",
+      "dateFinished": "2016-10-21T02:08:36+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:232"
+    },
+    {
+      "text": "val trainPriorProbabilities = classProbabilities(trainData)\nval cvPriorProbabilities = classProbabilities(cvData)",
+      "dateUpdated": "2016-10-21T02:08:43+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476825966820_1670154984",
+      "id": "20161018-212606_1035018945",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "trainPriorProbabilities: Array[Double] = Array(0.1411901983663944, 0.1444407401233539, 0.14385730955159193, 0.1456076012668778, 0.1430238373062177, 0.13985664277379564, 0.14202367061176863)\ncvPriorProbabilities: Array[Double] = Array(0.1492632927610506, 0.1367713004484305, 0.13901345291479822, 0.13228699551569506, 0.14221652786675207, 0.15438821268417682, 0.14606021780909673)\n"
+      },
+      "dateCreated": "2016-10-18T09:26:06+0000",
+      "dateStarted": "2016-10-21T02:08:43+0000",
+      "dateFinished": "2016-10-21T02:08:43+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:233"
+    },
+    {
+      "text": "// Model Evaluation: to form an unbiased estimate of accuracy\r// Grid Search could be expensive depending on the dataset. \r// How about adaptive search with a more specific space\r// e.g. (a,b); (c, d, e); (g, h) => A*B*C (increases exponentially)\r\rval evaluations =\r    for (impurity <- Array(\"gini\", \"entropy\");\r            depth <- Array(1, 6, 11, 17, 22);\r            numOfTrees <- Array(10, 20, 100);\r            bins <- Array(40, 300)) \r        yield {\r            val model = RandomForest.trainClassifier(\r            trainData, 7, Map(10 -> 4, 11 -> 40), numOfTrees, \"onethird\", impurity, depth, bins, seed = 0);\r            // predict on new data and keep track of the labels\r            val trainAccuracy = getMetrics(model, trainData).precision; \r            val cvAccuracy = getMetrics(model, cvData).precision;\r            ((impurity, depth, numOfTrees, bins), (trainAccuracy, cvAccuracy));\r        };\rsc.parallelize(evaluations).\r    toDF().\r    selectExpr(\"_1 as hyper_parameters\", \"_2 as precision_recall\").\r    sort(desc(\"precision_recall\")).show(10, false)",
+      "dateUpdated": "2016-10-31T14:23:20+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476826221370_2051990646",
+      "id": "20161018-213021_631152179",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "warning: there were two deprecation warnings; re-run with -deprecation for details\n+--------------------+---------------------------------------+\n|hyper_parameters    |precision_recall                       |\n+--------------------+---------------------------------------+\n|[entropy,22,100,40] |[1.0,0.8615702479338843]               |\n|[entropy,22,100,300]|[1.0,0.8608815426997245]               |\n|[gini,22,100,300]   |[0.9986871256256667,0.8629476584022039]|\n|[gini,22,100,40]    |[0.9986871256256667,0.8567493112947658]|\n|[entropy,22,20,300] |[0.9981947977352917,0.8526170798898072]|\n|[entropy,17,100,40] |[0.9966357594157709,0.8553719008264463]|\n|[entropy,22,20,40]  |[0.9966357594157709,0.8457300275482094]|\n|[entropy,17,100,300]|[0.996553704767375,0.8581267217630854] |\n|[gini,22,20,300]    |[0.9949946664478543,0.84366391184573]  |\n|[gini,22,20,40]     |[0.992697136292771,0.84366391184573]   |\n+--------------------+---------------------------------------+\nonly showing top 10 rows\n\nevaluations: Array[((String, Int, Int, Int), (Double, Double))] = Array(((gini,1,10,40),(0.2864527775498482,0.2768595041322314)), ((gini,1,10,300),(0.2864527775498482,0.2768595041322314)), ((gini,1,20,40),(0.2866989414950357,0.28168044077134985)), ((gini,1,20,300),(0.28686305079182733,0.28168044077134985)), ((gini,1,100,40),(0.3022072700418479,0.2837465564738292)), ((gini,1,100,300),(0.3024534339870354,0.2837465564738292)), ((gini,6,10,40),(0.7084598342496102,0.6763085399449036)), ((gini,6,10,300),(0.7078854517108394,0.6818181818181818)), ((gini,6,20,40),(0.7137933863953393,0.6873278236914601)), ((gini,6,20,300),(0.7001723147616312,0.6680440771349863)), ((gini,6,100,40),(0.7253630918191516,0.6825068870523416)), ((gini,6,100,300),(0.7308607532616723,0.6935261707988981)), ((gini,11,10,40)..."
+      },
+      "dateCreated": "2016-10-18T09:30:21+0000",
+      "dateStarted": "2016-10-31T14:23:20+0000",
+      "dateFinished": "2016-10-31T14:43:31+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:234",
+      "focus": true
+    },
+    {
+      "text": "// Post Model Evaluation, use the HyperParameters to build the final Model\nval finalData = trainData.union(cvData)\nval finalModel = RandomForest.trainClassifier(\n            finalData, 7, Map(10 -> 4, 11 -> 40), 100, \"onethird\", \"gini\", 22, 40, 0);",
+      "dateUpdated": "2016-10-31T15:11:50+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476835926462_95475293",
+      "id": "20161019-001206_2055534246",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "finalData: org.apache.spark.rdd.RDD[org.apache.spark.mllib.regression.LabeledPoint] = UnionRDD[13398] at union at <console>:225\nfinalModel: org.apache.spark.mllib.tree.model.RandomForestModel =\nTreeEnsembleModel classifier with 100 trees\n"
+      },
+      "dateCreated": "2016-10-19T12:12:06+0000",
+      "dateStarted": "2016-10-31T15:11:50+0000",
+      "dateFinished": "2016-10-31T15:13:05+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:235",
+      "focus": true
+    },
+    {
+      "text": "// Evaluate the result on the test dataset using computeMetrics and getMetrics\n// Display the results\nval resultsOnTestData = computeMetrics(testData.map(_.label).distinct().count().toInt,  getMetrics(finalModel, testData))\nval accuracyResut = sc.parallelize(resultsOnTestData).\n                       zipWithIndex.toDF.\n                       selectExpr(\"_1 as accuracy_precision_recall\", \"_2 as forest_cover_type\").\n                       select(\"forest_cover_type\", \"accuracy_precision_recall\")\naccuracyResut.show(false)",
+      "dateUpdated": "2016-10-31T15:13:11+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476841381801_1240853035",
+      "id": "20161019-014301_1631040243",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "resultsOnTestData: scala.collection.immutable.IndexedSeq[(Double, Double)] = Vector((0.6844660194174758,0.7421052631578947), (0.7906976744186046,0.6126126126126126), (0.8341232227488151,0.8301886792452831), (0.9321266968325792,0.9626168224299065), (0.88,0.9611650485436893), (0.853448275862069,0.8839285714285714), (0.9299065420560748,0.9342723004694836))\naccuracyResut: org.apache.spark.sql.DataFrame = [forest_cover_type: bigint, accuracy_precision_recall: struct<_1: double, _2: double>]\n+-----------------+---------------------------------------+\n|forest_cover_type|accuracy_precision_recall              |\n+-----------------+---------------------------------------+\n|0                |[0.6844660194174758,0.7421052631578947]|\n|1                |[0.7906976744186046,0.6126126126126126]|\n|2                |[0.8341232227488151,0.8301886792452831]|\n|3                |[0.9321266968325792,0.9626168224299065]|\n|4                |[0.88,0.9611650485436893]              |\n|5                |[0.853448275862069,0.8839285714285714] |\n|6                |[0.9299065420560748,0.9342723004694836]|\n+-----------------+---------------------------------------+\n\n"
+      },
+      "dateCreated": "2016-10-19T01:43:01+0000",
+      "dateStarted": "2016-10-31T15:13:11+0000",
+      "dateFinished": "2016-10-31T15:13:21+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:236",
+      "focus": true
+    },
+    {
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1477926853482_1330506286",
+      "id": "20161031-151413_1743187360",
+      "dateCreated": "2016-10-31T15:14:13+0000",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500,
+      "focus": true,
+      "$$hashKey": "object:3059"
+    },
+    {
+      "text": "val transformedTestData = transformInput(inputTestData, true)",
+      "dateUpdated": "2016-10-31T15:13:49+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476836611076_2059395144",
+      "id": "20161019-002331_1803399261",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "transformedTestData: org.apache.spark.rdd.RDD[org.apache.spark.mllib.regression.LabeledPoint] = MapPartitionsRDD[13493] at map at <console>:222\n"
+      },
+      "dateCreated": "2016-10-19T12:23:31+0000",
+      "dateStarted": "2016-10-31T15:13:49+0000",
+      "dateFinished": "2016-10-31T15:13:50+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:237",
+      "focus": true
+    },
+    {
+      "text": "val idWithIndex = inputTestData.zipWithIndex.map(row => (row._2, row._1.split(\",\")(0)))\nval idWithIndexDf = idWithIndex.toDF().selectExpr(\"_1 as index\", \"_2 as Id\")\n",
+      "dateUpdated": "2016-10-31T15:13:53+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1476867180669_1295474525",
+      "id": "20161019-085300_357865334",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "idWithIndex: org.apache.spark.rdd.RDD[(Long, String)] = MapPartitionsRDD[13495] at map at <console>:227\nidWithIndexDf: org.apache.spark.sql.DataFrame = [index: bigint, Id: string]\n"
+      },
+      "dateCreated": "2016-10-19T08:53:00+0000",
+      "dateStarted": "2016-10-31T15:13:53+0000",
+      "dateFinished": "2016-10-31T15:13:55+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:238",
+      "focus": true
+    },
+    {
+      "text": "val outputPath = \"s3://ds-etl/data/results/\"\nval yHatForest = transformedTestData.zipWithIndex.map(row => (row._2, finalModel.predict(row._1.features)))\nval yHatForestDf = yHatForest.toDF().selectExpr(\"_1 as index\", \"_2 as Cover_Type\")\nval newResults = idWithIndexDf.join(yHatForestDf, \"index\")\n                .select(\"Id\", \"Cover_Type\")\nval newres = newResults.withColumn(\"Cover_Type\", ($\"Cover_Type\" + 1).cast(IntegerType))\ndeleteS3Path(Some(\"/data/results/\"))\nsaveAsCsv(outputPath, newres)",
+      "dateUpdated": "2016-10-31T15:13:59+0000",
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true,
+        "editorMode": "ace/mode/scala"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1477019590146_1775479924",
+      "id": "20161021-031310_2032626237",
+      "result": {
+        "code": "SUCCESS",
+        "type": "TEXT",
+        "msg": "outputPath: String = s3://ds-etl/data/results/\nyHatForest: org.apache.spark.rdd.RDD[(Long, Double)] = MapPartitionsRDD[13498] at map at <console>:238\nyHatForestDf: org.apache.spark.sql.DataFrame = [index: bigint, Cover_Type: double]\nnewResults: org.apache.spark.sql.DataFrame = [Id: string, Cover_Type: double]\nnewres: org.apache.spark.sql.DataFrame = [Id: string, Cover_Type: int]\n"
+      },
+      "dateCreated": "2016-10-21T03:13:10+0000",
+      "dateStarted": "2016-10-31T15:13:59+0000",
+      "dateFinished": "2016-10-31T15:15:32+0000",
+      "status": "FINISHED",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:239",
+      "focus": true
+    },
+    {
+      "config": {
+        "colWidth": 12,
+        "graph": {
+          "mode": "table",
+          "height": 300,
+          "optionOpen": false,
+          "keys": [],
+          "values": [],
+          "groups": [],
+          "scatter": {}
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "jobName": "paragraph_1477019663123_-1433033099",
+      "id": "20161021-031423_399139653",
+      "dateCreated": "2016-10-21T03:14:23+0000",
+      "status": "READY",
+      "progressUpdateIntervalMs": 500,
+      "$$hashKey": "object:240",
+      "errorMessage": "",
+      "focus": true
+    }
+  ],
+  "name": "forest_cover_type_prediction",
+  "id": "2C1G6TB57",
+  "angularObjects": {
+    "2BRWU4WXC:shared_process": [],
+    "2AM1YV5CU:shared_process": [],
+    "2AJXGMUUJ:shared_process": [],
+    "2ANGGHHMQ:shared_process": [],
+    "2AKK3QQXU:shared_process": []
+  },
+  "config": {
+    "looknfeel": "default"
+  },
+  "info": {}
+}
