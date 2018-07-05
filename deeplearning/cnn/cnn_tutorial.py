@@ -169,7 +169,7 @@ def main(args):
     n_classes = 10
     batch_size = 128
     keep_rate = args.keep_rate
-    epochs = args.epoch
+    epochs = args.epo`ch
     l_r = args.learning_rate
     device_type = args.device_type
 
